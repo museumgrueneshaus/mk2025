@@ -1,9 +1,20 @@
 ---
 import '../../styles/kiosk.css';
 
-// Load current configuration
-const response = await fetch(new URL('/config/kiosks.json', Astro.url));
-const kiosks = await response.json();
+// Load current configuration - for static build use default config
+let kiosks = {};
+try {
+  // This will work in development
+  const response = await fetch(new URL('/config/kiosks.json', Astro.url));
+  kiosks = await response.json();
+} catch (e) {
+  // Default config for static build
+  kiosks = {
+    'pi_01': { name: 'Kiosk 1' },
+    'pi_02': { name: 'Kiosk 2' },
+    'pi_03': { name: 'Kiosk 3' },
+  };
+}
 ---
 
 <!DOCTYPE html>

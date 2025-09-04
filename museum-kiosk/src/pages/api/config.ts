@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
 
-export const prerender = false;
+// API routes are not supported in static builds
+// export const prerender = false;
 
 const configPath = path.join(process.cwd(), 'public', 'config', 'kiosks.json');
 

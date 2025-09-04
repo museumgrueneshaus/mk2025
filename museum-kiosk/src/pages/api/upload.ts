@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
 
-export const prerender = false;
+// API routes are not supported in static builds
+// export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   try {

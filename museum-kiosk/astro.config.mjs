@@ -6,8 +6,8 @@ import react from '@astrojs/react';
 export default defineConfig({
   integrations: [react()],
   
-  // Output für Static Site Generation mit API Routes
-  output: 'hybrid',
+  // Output für Static Site Generation
+  output: 'static',
   
   // Server configuration für Development
   server: {
