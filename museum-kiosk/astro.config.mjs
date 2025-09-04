@@ -4,5 +4,30 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react()]
+  integrations: [react()],
+  
+  // Output für Static Site Generation mit API Routes
+  output: 'hybrid',
+  
+  // Server configuration für Development
+  server: {
+    port: 4321,
+    host: true
+  },
+  
+  // Build configuration
+  build: {
+    // Inline CSS für bessere Performance
+    inlineStylesheets: 'auto',
+    // Assets optimization
+    assets: 'assets'
+  },
+  
+  // Site URL für Production (wird von Netlify überschrieben)
+  site: 'https://museum.netlify.app',
+  
+  // Prefetch für bessere Navigation
+  prefetch: {
+    prefetchAll: true
+  }
 });
