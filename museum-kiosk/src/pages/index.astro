@@ -1,0 +1,199 @@
+---
+import '../styles/kiosk.css';
+---
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <title>Museum Kiosk System</title>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <span>🏛️</span>
+          <span>Museum Kiosk System</span>
+        </div>
+        <div>
+          <span class="text-small text-muted">WLAN-optimierte Version</span>
+          <span class="badge badge-success">Online</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mt-4">
+    <!-- Main Actions -->
+    <div class="grid grid-2 mb-4">
+      <!-- Kiosk Manager -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Kiosk Manager</h2>
+          <p class="card-description">
+            Verwalten Sie Kiosk-Inhalte und Konfigurationen
+          </p>
+        </div>
+        <ul class="feature-list mb-3">
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>Drag & Drop Upload</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>8 Layout-Templates verfügbar</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>Live-Aktualisierung der Kiosks</span>
+          </li>
+        </ul>
+        <a href="/admin" class="btn btn-primary btn-block">
+          Kiosk Manager öffnen
+        </a>
+      </div>
+
+      <!-- Test Kiosks -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Test Kiosks</h2>
+          <p class="card-description">
+            Simulierte Kiosk-Displays für Tests
+          </p>
+        </div>
+        <div class="list">
+          <a href="/viewer/aa-bb-cc-dd-ee-01" class="list-item">
+            <div class="list-item-header">
+              <div>
+                <strong>Kiosk Eingang</strong><br>
+                <span class="text-small text-muted">MAC: aa-bb-cc-dd-ee-01</span>
+              </div>
+              <span class="badge badge-success">Online</span>
+            </div>
+          </a>
+          <a href="/viewer/aa-bb-cc-dd-ee-02" class="list-item">
+            <div class="list-item-header">
+              <div>
+                <strong>Kiosk Ausstellung 1</strong><br>
+                <span class="text-small text-muted">MAC: aa-bb-cc-dd-ee-02</span>
+              </div>
+              <span class="badge badge-warning">Offline</span>
+            </div>
+          </a>
+          <a href="/viewer/aa-bb-cc-dd-ee-03" class="list-item">
+            <div class="list-item-header">
+              <div>
+                <strong>Kiosk Info-Point</strong><br>
+                <span class="text-small text-muted">MAC: aa-bb-cc-dd-ee-03</span>
+              </div>
+              <span class="badge badge-success">Online</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="grid grid-3 mb-4">
+      <div class="card">
+        <h3>⚡ WLAN-optimiert</h3>
+        <p class="text-small text-muted">
+          Automatische Reconnects, Offline-Cache, Watchdog
+        </p>
+      </div>
+      <div class="card">
+        <h3>✅ Zero-Touch Setup</h3>
+        <p class="text-small text-muted">
+          Ein Script - fertig konfiguriert
+        </p>
+      </div>
+      <div class="card">
+        <h3>📦 Offline Support</h3>
+        <p class="text-small text-muted">
+          Service Worker mit aggressivem Caching
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Quick Start</h2>
+      </div>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-number"></span>
+          <span>Öffnen Sie den <a href="/admin">Kiosk Manager</a> und laden Sie Inhalte hoch</span>
+        </li>
+        <li class="step">
+          <span class="step-number"></span>
+          <span>Wählen Sie ein Test-Gerät aus und weisen Sie das Layout zu</span>
+        </li>
+        <li class="step">
+          <span class="step-number"></span>
+          <span>Testen Sie die Anzeige über die Test-Kiosk Links</span>
+        </li>
+        <li class="step">
+          <span class="step-number"></span>
+          <span>Für echte Raspberry Pis: Führen Sie <code>/public/setup/pi-setup.sh</code> aus</span>
+        </li>
+      </ol>
+    </div>
+
+    <!-- System Status -->
+    <div class="status-bar">
+      <div class="status-content">
+        <div>
+          <h3>System Status</h3>
+          <p class="text-small text-muted">Alle Systeme laufen normal</p>
+        </div>
+        <div class="status-stats">
+          <div class="stat">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Kiosks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" style="color: #10b981;">2</div>
+            <div class="stat-label">Online</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" style="color: #9ca3af;">1</div>
+            <div class="stat-label">Offline</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <p class="text-small text-muted">
+          Museum Kiosk System - WLAN-optimiert für Raspberry Pi
+        </p>
+        <div class="footer-links">
+          <a href="/admin" class="text-small">Manager</a>
+          <a href="/viewer/default" class="text-small">Default Viewer</a>
+          <span class="text-small text-muted">v1.0.0</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log('Service Worker registriert');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+[Unit]
+Description=Museum Kiosk Browser
+After=multi-user.target network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=museum
+Group=museum
+PAMName=login
+
+# Environment
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/museum/.Xauthority"
+Environment="HOME=/home/museum"
+
+# Start script
+ExecStart=/home/museum/start-kiosk.sh
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitBurst=3
+StartLimitInterval=60
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Resource limits (optional)
+# MemoryMax=1G
+# CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target

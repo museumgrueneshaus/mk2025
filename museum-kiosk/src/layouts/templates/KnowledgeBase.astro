@@ -1,0 +1,574 @@
+---
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+const exhibitsPath = config.content?.exhibitsPath || '/config/exhibits.json';
+
+// In production this would fetch from the API
+const response = await fetch(new URL(exhibitsPath, Astro.url));
+const data = await response.json();
+const exhibits = data.exhibits || [];
+const categories = data.categories || [];
+---
+
+<div class="knowledge-base-container">
+  <!-- Header with Search and Filters -->
+  <header class="kb-header">
+    <div class="kb-header-content">
+      <h1 class="kb-title">Digitale Sammlung</h1>
+      
+      <div class="kb-controls">
+        <!-- Search Bar -->
+        <div class="search-container">
+          <input 
+            type="text" 
+            id="search-input" 
+            class="search-input"
+            placeholder="Suchen Sie nach Kunstwerken, Künstlern..."
+          />
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="filter-container">
+          <button class="filter-btn active" data-category="all">
+            Alle <span class="count">({exhibits.length})</span>
+          </button>
+          {categories.map((cat: any) => (
+            <button class="filter-btn" data-category={cat.id}>
+              {cat.name} <span class="count">({cat.count})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="kb-main">
+    <!-- Grid View -->
+    <div id="grid-view" class="exhibits-grid">
+      {exhibits.map((exhibit: any) => (
+        <article class="exhibit-card" data-id={exhibit.id} data-category={exhibit.category} data-searchable={`${exhibit.title} ${exhibit.artist} ${exhibit.tags?.join(' ')}`}>
+          <div class="exhibit-image-container">
+            <img src={exhibit.thumbnail || exhibit.image} alt={exhibit.title} loading="lazy" />
+            <div class="exhibit-overlay">
+              <button class="view-detail-btn" data-id={exhibit.id}>
+                Details anzeigen
+              </button>
+            </div>
+          </div>
+          <div class="exhibit-info">
+            <h3 class="exhibit-title">{exhibit.title}</h3>
+            <p class="exhibit-artist">{exhibit.artist}</p>
+            <p class="exhibit-year">{exhibit.year}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Detail View (Hidden by default) -->
+    <div id="detail-view" class="exhibit-detail" style="display: none;">
+      <button class="back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Zurück zur Übersicht
+      </button>
+      
+      <div class="detail-content">
+        <div class="detail-image-section">
+          <img id="detail-image" src="" alt="" />
+          {config.features?.zoom === 'lupe' && (
+            <div class="zoom-lens" style="display: none;"></div>
+          )}
+        </div>
+        
+        <div class="detail-info-section">
+          <h1 id="detail-title"></h1>
+          <p id="detail-artist" class="detail-artist"></p>
+          <p id="detail-year" class="detail-year"></p>
+          
+          <div class="detail-metadata">
+            <dl>
+              <dt>Technik:</dt>
+              <dd id="detail-technique"></dd>
+              <dt>Maße:</dt>
+              <dd id="detail-dimensions"></dd>
+              <dt>Standort:</dt>
+              <dd id="detail-location"></dd>
+            </dl>
+          </div>
+          
+          <div id="detail-description" class="detail-description"></div>
+          
+          <div id="detail-tags" class="detail-tags"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .knowledge-base-container {
+    width: 100vw;
+    height: 100vh;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .kb-header {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+  }
+
+  .kb-header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .kb-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .kb-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* Search */
+  .search-container {
+    position: relative;
+    max-width: 500px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    transition: border-color 0.3s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+  }
+
+  /* Filters */
+  .filter-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+
+  .filter-btn:hover {
+    border-color: #4CAF50;
+  }
+
+  .filter-btn.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+
+  .count {
+    opacity: 0.7;
+    font-size: 12px;
+  }
+
+  /* Main Content */
+  .kb-main {
+    flex: 1;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    padding: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide scrollbars for kiosk mode */
+  .kb-main::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .kb-main {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Grid View */
+  .exhibits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .exhibit-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+
+  .exhibit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .exhibit-card.hidden {
+    display: none;
+  }
+
+  .exhibit-image-container {
+    position: relative;
+    padding-bottom: 75%; /* 4:3 Aspect Ratio */
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+
+  .exhibit-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .exhibit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .exhibit-card:hover .exhibit-overlay {
+    opacity: 1;
+  }
+
+  .view-detail-btn {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+
+  .view-detail-btn:hover {
+    background: #45a049;
+  }
+
+  .exhibit-info {
+    padding: 15px;
+  }
+
+  .exhibit-title {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .exhibit-artist {
+    color: #666;
+    margin-bottom: 3px;
+  }
+
+  .exhibit-year {
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  /* Detail View */
+  .exhibit-detail {
+    background: white;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+  
+  /* Hide scrollbars */
+  .exhibit-detail::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .exhibit-detail {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .back-btn:hover {
+    background: rgba(0,0,0,0.9);
+  }
+
+  .detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 20px 40px;
+  }
+
+  .detail-image-section {
+    position: relative;
+  }
+
+  .detail-image-section img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .detail-info-section {
+    padding-top: 20px;
+  }
+
+  #detail-title {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .detail-artist {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  .detail-year {
+    font-size: 1.2rem;
+    color: #999;
+    margin-bottom: 30px;
+  }
+
+  .detail-metadata {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+
+  .detail-metadata dl {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+  }
+
+  .detail-metadata dt {
+    font-weight: bold;
+    color: #666;
+  }
+
+  .detail-metadata dd {
+    color: #333;
+    margin: 0;
+  }
+
+  .detail-description {
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 30px;
+  }
+
+  .detail-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 5px 15px;
+    background: #e8f5e9;
+    color: #4CAF50;
+    border-radius: 15px;
+    font-size: 0.9rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .detail-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .exhibits-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+  }
+</style>
+
+<script define:vars={{ exhibits }}>
+  // Search and Filter functionality
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const exhibitCards = document.querySelectorAll('.exhibit-card');
+  const gridView = document.getElementById('grid-view');
+  const detailView = document.getElementById('detail-view');
+  const backBtn = document.querySelector('.back-btn');
+
+  let currentFilter = 'all';
+  let currentSearch = '';
+
+  // Search function
+  function performSearch() {
+    currentSearch = searchInput.value.toLowerCase();
+    filterExhibits();
+  }
+
+  // Filter function
+  function filterExhibits() {
+    exhibitCards.forEach(card => {
+      const category = card.getAttribute('data-category');
+      const searchable = card.getAttribute('data-searchable')?.toLowerCase() || '';
+      
+      const matchesFilter = currentFilter === 'all' || category === currentFilter;
+      const matchesSearch = currentSearch === '' || searchable.includes(currentSearch);
+      
+      if (matchesFilter && matchesSearch) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  // Search event
+  searchInput?.addEventListener('input', performSearch);
+
+  // Filter events
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-category') || 'all';
+      filterExhibits();
+    });
+  });
+
+  // Detail view functionality
+  function showDetail(exhibitId: string) {
+    const exhibit = exhibits.find((e: any) => e.id === exhibitId);
+    if (!exhibit) return;
+
+    // Populate detail view
+    const img = document.getElementById('detail-image') as HTMLImageElement;
+    img.src = exhibit.image;
+    img.alt = exhibit.title;
+
+    document.getElementById('detail-title')!.textContent = exhibit.title;
+    document.getElementById('detail-artist')!.textContent = exhibit.artist;
+    document.getElementById('detail-year')!.textContent = exhibit.year;
+    document.getElementById('detail-technique')!.textContent = exhibit.technique || '-';
+    document.getElementById('detail-dimensions')!.textContent = exhibit.dimensions || '-';
+    document.getElementById('detail-location')!.textContent = exhibit.location || '-';
+    document.getElementById('detail-description')!.textContent = exhibit.description || '';
+
+    // Tags
+    const tagsContainer = document.getElementById('detail-tags')!;
+    tagsContainer.innerHTML = '';
+    if (exhibit.tags) {
+      exhibit.tags.forEach((tag: string) => {
+        const tagEl = document.createElement('span');
+        tagEl.className = 'tag';
+        tagEl.textContent = tag;
+        tagsContainer.appendChild(tagEl);
+      });
+    }
+
+    // Show detail view
+    if (gridView) gridView.style.display = 'none';
+    if (detailView) detailView.style.display = 'block';
+  }
+
+  // View detail buttons
+  document.querySelectorAll('.view-detail-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      if (id) showDetail(id);
+    });
+  });
+
+  // Card clicks
+  exhibitCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.getAttribute('data-id');
+      if (id) showDetail(id);
+    });
+  });
+
+  // Back button
+  backBtn?.addEventListener('click', () => {
+    if (detailView) detailView.style.display = 'none';
+    if (gridView) gridView.style.display = 'grid';
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && detailView?.style.display === 'block') {
+      if (detailView) detailView.style.display = 'none';
+      if (gridView) gridView.style.display = 'grid';
+    }
+  });
+</script>

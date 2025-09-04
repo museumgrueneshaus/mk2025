@@ -1,0 +1,291 @@
+---
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+const videos = config.content?.videos || [];
+const showPlaylist = config.features?.playlist !== false;
+const autoplay = config.features?.autoplay !== false;
+const loop = config.features?.loop !== false;
+---
+
+<div class="video-player-container">
+  <!-- Video Display -->
+  <div class="video-display">
+    <video 
+      id="main-video"
+      class="video-element"
+      controls
+      autoplay={autoplay}
+      loop={loop && videos.length === 1}
+    >
+      {videos[0] && <source src={videos[0]} />}
+      Ihr Browser unterstützt keine Video-Wiedergabe.
+    </video>
+  </div>
+
+  <!-- Playlist (if multiple videos) -->
+  {showPlaylist && videos.length > 1 && (
+    <div class="video-playlist">
+      <h3 class="playlist-title">Playlist</h3>
+      <div class="playlist-items">
+        {videos.map((video: string, index: number) => (
+          <div class="playlist-item" data-src={video} data-index={index}>
+            <div class="playlist-thumbnail">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="#666">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+            <div class="playlist-info">
+              <div class="playlist-item-title">Video {index + 1}</div>
+              <div class="playlist-item-name">{video.split('/').pop()}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- Video Controls Overlay -->
+  <div class="video-controls-overlay">
+    <button id="prev-video" class="control-btn" style={videos.length <= 1 ? 'display: none;' : ''}>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+      </svg>
+    </button>
+    <button id="play-pause" class="control-btn">
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="white" id="play-icon">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="white" id="pause-icon" style="display: none;">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+      </svg>
+    </button>
+    <button id="next-video" class="control-btn" style={videos.length <= 1 ? 'display: none;' : ''}>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .video-player-container {
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    position: relative;
+  }
+
+  .video-display {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .video-playlist {
+    width: 300px;
+    background: rgba(0, 0, 0, 0.9);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+  
+  /* Hide scrollbars */
+  .video-playlist::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .video-playlist {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .playlist-title {
+    padding: 20px;
+    margin: 0;
+    color: white;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .playlist-items {
+    padding: 10px;
+  }
+
+  .playlist-item {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .playlist-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .playlist-item.active {
+    background: rgba(76, 175, 80, 0.3);
+    border: 1px solid #4CAF50;
+  }
+
+  .playlist-thumbnail {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+
+  .playlist-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .playlist-item-title {
+    color: white;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .playlist-item-name {
+    color: #999;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .video-controls-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 30px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .video-player-container:hover .video-controls-overlay {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .control-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .control-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+</style>
+
+<script define:vars={{ videos }}>
+  const video = document.getElementById('main-video') as HTMLVideoElement;
+  const playPauseBtn = document.getElementById('play-pause');
+  const playIcon = document.getElementById('play-icon');
+  const pauseIcon = document.getElementById('pause-icon');
+  const prevBtn = document.getElementById('prev-video');
+  const nextBtn = document.getElementById('next-video');
+  const playlistItems = document.querySelectorAll('.playlist-item');
+  
+  let currentIndex = 0;
+
+  // Play/Pause toggle
+  playPauseBtn?.addEventListener('click', () => {
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  });
+
+  // Update play/pause icon
+  video?.addEventListener('play', () => {
+    if (playIcon) playIcon.style.display = 'none';
+    if (pauseIcon) pauseIcon.style.display = 'block';
+  });
+
+  video?.addEventListener('pause', () => {
+    if (playIcon) playIcon.style.display = 'block';
+    if (pauseIcon) pauseIcon.style.display = 'none';
+  });
+
+  // Load video
+  function loadVideo(index: number) {
+    if (videos[index]) {
+      currentIndex = index;
+      video.src = videos[index];
+      video.play();
+      
+      // Update playlist highlighting
+      playlistItems.forEach((item, i) => {
+        if (i === index) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  // Previous video
+  prevBtn?.addEventListener('click', () => {
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : videos.length - 1;
+    loadVideo(newIndex);
+  });
+
+  // Next video
+  nextBtn?.addEventListener('click', () => {
+    const newIndex = (currentIndex + 1) % videos.length;
+    loadVideo(newIndex);
+  });
+
+  // Playlist item clicks
+  playlistItems.forEach((item, index) => {
+    item.addEventListener('click', () => {
+      loadVideo(index);
+    });
+  });
+
+  // Auto-advance to next video when current ends (if not looping)
+  video?.addEventListener('ended', () => {
+    if (videos.length > 1 && !video.loop) {
+      const newIndex = (currentIndex + 1) % videos.length;
+      loadVideo(newIndex);
+    }
+  });
+
+  // Mark first video as active
+  if (playlistItems[0]) {
+    playlistItems[0].classList.add('active');
+  }
+</script>

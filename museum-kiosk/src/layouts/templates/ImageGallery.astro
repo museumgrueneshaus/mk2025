@@ -1,0 +1,343 @@
+---
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+const images = config.content?.images || [];
+const zoomType = config.features?.zoom || 'none';
+const showThumbnails = config.features?.thumbnails !== false;
+const showNavigation = config.features?.navigation !== false;
+---
+
+<div class="gallery-container" data-zoom={zoomType}>
+  <!-- Main Image Display -->
+  <div class="main-image-container">
+    {images.map((image: string, index: number) => (
+      <div class={`gallery-image ${index === 0 ? 'active' : ''}`} data-index={index}>
+        <img src={image} alt={`Image ${index + 1}`} />
+        
+        <!-- Zoom Lens (if enabled) -->
+        {zoomType === 'lupe' && (
+          <div class="zoom-lens" style="display: none;"></div>
+        )}
+      </div>
+    ))}
+    
+    <!-- Navigation Arrows -->
+    {showNavigation && (
+      <>
+        <button class="nav-btn prev" aria-label="Previous">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+        <button class="nav-btn next" aria-label="Next">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+          </svg>
+        </button>
+      </>
+    )}
+  </div>
+
+  <!-- Thumbnails -->
+  {showThumbnails && (
+    <div class="thumbnails-container">
+      {images.map((image: string, index: number) => (
+        <button 
+          class={`thumbnail ${index === 0 ? 'active' : ''}`} 
+          data-index={index}
+          aria-label={`Go to image ${index + 1}`}
+        >
+          <img src={image} alt={`Thumbnail ${index + 1}`} />
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .gallery-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+  }
+
+  .main-image-container {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gallery-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .gallery-image.active {
+    opacity: 1;
+  }
+
+  .gallery-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    user-select: none;
+  }
+
+  /* Navigation Buttons */
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+
+  .nav-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .nav-btn.prev {
+    left: 20px;
+  }
+
+  .nav-btn.next {
+    right: 20px;
+  }
+
+  /* Thumbnails */
+  .thumbnails-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    overflow-x: auto;
+    justify-content: center;
+  }
+
+  .thumbnail {
+    width: 80px;
+    height: 80px;
+    border: 2px solid transparent;
+    opacity: 0.6;
+    transition: all 0.3s;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    overflow: hidden;
+  }
+
+  .thumbnail:hover {
+    opacity: 1;
+  }
+
+  .thumbnail.active {
+    border-color: #fff;
+    opacity: 1;
+  }
+
+  .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Zoom Lens */
+  .zoom-lens {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    cursor: none;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Pinch to zoom styles */
+  .gallery-container[data-zoom="pinch"] .gallery-image img {
+    touch-action: pinch-zoom;
+    cursor: zoom-in;
+  }
+
+  .gallery-container[data-zoom="pinch"] .gallery-image.zoomed img {
+    cursor: zoom-out;
+  }
+
+  /* Touch gestures hint */
+  .touch-hint {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeInOut 3s ease-in-out;
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+</style>
+
+<script>
+  const container = document.querySelector('.gallery-container') as HTMLElement;
+  const images = container.querySelectorAll('.gallery-image');
+  const thumbnails = container.querySelectorAll('.thumbnail');
+  const prevBtn = container.querySelector('.nav-btn.prev') as HTMLButtonElement;
+  const nextBtn = container.querySelector('.nav-btn.next') as HTMLButtonElement;
+  const zoomType = container.dataset.zoom;
+  
+  let currentIndex = 0;
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  function showImage(index: number) {
+    images.forEach(img => img.classList.remove('active'));
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    
+    currentIndex = index;
+    images[currentIndex].classList.add('active');
+    
+    if (thumbnails[currentIndex]) {
+      thumbnails[currentIndex].classList.add('active');
+      thumbnails[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
+  function nextImage() {
+    showImage((currentIndex + 1) % images.length);
+  }
+
+  function prevImage() {
+    showImage((currentIndex - 1 + images.length) % images.length);
+  }
+
+  // Navigation buttons
+  if (prevBtn && nextBtn) {
+    prevBtn.addEventListener('click', prevImage);
+    nextBtn.addEventListener('click', nextImage);
+  }
+
+  // Thumbnail clicks
+  thumbnails.forEach((thumb, index) => {
+    thumb.addEventListener('click', () => showImage(index));
+  });
+
+  // Touch gestures for swipe
+  container.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  container.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        nextImage(); // Swipe left
+      } else {
+        prevImage(); // Swipe right
+      }
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+  });
+
+  // Zoom Lens functionality
+  if (zoomType === 'lupe') {
+    images.forEach(imageContainer => {
+      const img = imageContainer.querySelector('img') as HTMLImageElement;
+      const lens = imageContainer.querySelector('.zoom-lens') as HTMLElement;
+      
+      if (!lens) return;
+      
+      const zoomLevel = 3;
+      
+      imageContainer.addEventListener('mousemove', (e) => {
+        if (!imageContainer.classList.contains('active')) return;
+        
+        lens.style.display = 'block';
+        
+        const rect = imageContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Position lens
+        lens.style.left = (x - 75) + 'px';
+        lens.style.top = (y - 75) + 'px';
+        
+        // Set zoomed background
+        const bgX = -((x * zoomLevel) - 75);
+        const bgY = -((y * zoomLevel) - 75);
+        
+        lens.style.backgroundImage = `url(${img.src})`;
+        lens.style.backgroundSize = `${img.width * zoomLevel}px ${img.height * zoomLevel}px`;
+        lens.style.backgroundPosition = `${bgX}px ${bgY}px`;
+      });
+      
+      imageContainer.addEventListener('mouseleave', () => {
+        lens.style.display = 'none';
+      });
+    });
+  }
+
+  // Pinch to zoom
+  if (zoomType === 'pinch') {
+    images.forEach(imageContainer => {
+      const img = imageContainer.querySelector('img') as HTMLImageElement;
+      let scale = 1;
+      let lastScale = 1;
+      
+      // Hammer.js or native touch events for pinch zoom would go here
+      // For demo, simple double-tap to zoom
+      img.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        if (scale === 1) {
+          scale = 2;
+          img.style.transform = `scale(${scale})`;
+          img.style.cursor = 'zoom-out';
+        } else {
+          scale = 1;
+          img.style.transform = `scale(${scale})`;
+          img.style.cursor = 'zoom-in';
+        }
+      });
+    });
+  }
+</script>

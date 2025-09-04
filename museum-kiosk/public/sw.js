@@ -1,0 +1,195 @@
+// Museum Kiosk Service Worker
+// Aggressive Caching für WLAN-Kiosks
+
+const CACHE_NAME = 'museum-kiosk-v1';
+const OFFLINE_CACHE = 'museum-offline-v1';
+
+// Zu cachende Ressourcen
+const STATIC_ASSETS = [
+  '/',
+  '/manifest.json',
+  // Weitere statische Assets werden beim Build hinzugefügt
+];
+
+// Install Event - Cache static assets
+self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
+  
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Service Worker: Caching static assets');
+      return cache.addAll(STATIC_ASSETS);
+    })
+  );
+  
+  // Sofort aktivieren
+  self.skipWaiting();
+});
+
+// Activate Event - Clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating...');
+  
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME && name !== OFFLINE_CACHE)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+  
+  // Sofort übernehmen
+  self.clients.claim();
+});
+
+// Fetch Event - Network first, then cache
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  
+  // Viewer-Seiten aggressiv cachen
+  if (request.url.includes('/viewer/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone response für Cache
+          const responseToCache = response.clone();
+          
+          caches.open(OFFLINE_CACHE).then((cache) => {
+            cache.put(request, responseToCache);
+          });
+          
+          return response;
+        })
+        .catch(() => {
+          // Bei Netzwerkfehler aus Cache laden
+          return caches.match(request).then((response) => {
+            if (response) {
+              console.log('Service Worker: Serving from cache (offline)');
+              return response;
+            }
+            
+            // Fallback-Seite wenn nichts im Cache
+            return new Response(
+              `<!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <title>Offline</title>
+                  <style>
+                    body {
+                      background: #000;
+                      color: #fff;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      height: 100vh;
+                      margin: 0;
+                      font-family: system-ui;
+                    }
+                    .offline-message {
+                      text-align: center;
+                    }
+                    .retry-button {
+                      margin-top: 20px;
+                      padding: 10px 20px;
+                      background: #333;
+                      color: #fff;
+                      border: none;
+                      border-radius: 5px;
+                      cursor: pointer;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="offline-message">
+                    <h1>Offline-Modus</h1>
+                    <p>Keine Verbindung zum Server</p>
+                    <button class="retry-button" onclick="location.reload()">
+                      Erneut versuchen
+                    </button>
+                  </div>
+                </body>
+              </html>`,
+              {
+                headers: { 'Content-Type': 'text/html' }
+              }
+            );
+          });
+        })
+    );
+    return;
+  }
+  
+  // Media-Dateien cachen
+  if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/)) {
+    event.respondWith(
+      caches.match(request).then((response) => {
+        if (response) {
+          return response;
+        }
+        
+        return fetch(request).then((response) => {
+          if (!response || response.status !== 200) {
+            return response;
+          }
+          
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache);
+          });
+          
+          return response;
+        });
+      })
+    );
+    return;
+  }
+  
+  // Standard: Network first, cache fallback
+  event.respondWith(
+    fetch(request).catch(() => {
+      return caches.match(request);
+    })
+  );
+});
+
+// Background Sync für Layout-Updates
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'update-layouts') {
+    event.waitUntil(updateLayouts());
+  }
+});
+
+async function updateLayouts() {
+  try {
+    const cache = await caches.open(OFFLINE_CACHE);
+    const keys = await cache.keys();
+    
+    // Alle Viewer-URLs updaten
+    const viewerUrls = keys
+      .map(request => request.url)
+      .filter(url => url.includes('/viewer/'));
+    
+    for (const url of viewerUrls) {
+      try {
+        const response = await fetch(url);
+        await cache.put(url, response);
+        console.log(`Updated cache for: ${url}`);
+      } catch (error) {
+        console.error(`Failed to update: ${url}`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Background sync failed:', error);
+  }
+}
+
+// Periodisches Update (alle 30 Minuten)
+setInterval(() => {
+  if (navigator.onLine) {
+    updateLayouts();
+  }
+}, 30 * 60 * 1000);

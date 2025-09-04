@@ -1,0 +1,400 @@
+---
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+const items = config.content?.items || [];
+const autoplay = config.features?.autoplay !== false;
+const duration = config.settings?.duration || 7000;
+const showIndicators = config.features?.indicators !== false;
+---
+
+<div class="mixed-carousel-container">
+  <div class="carousel-wrapper">
+    {items.map((item: any, index: number) => (
+      <div class="carousel-slide" data-index={index} style={index === 0 ? '' : 'display: none;'}>
+        {item.type === 'image' && (
+          <img src={item.src} alt={item.title || ''} class="slide-image" />
+        )}
+        {item.type === 'video' && (
+          <video class="slide-video" muted autoplay={index === 0}>
+            <source src={item.src} />
+          </video>
+        )}
+        {item.type === 'text' && (
+          <div class="slide-text" style={`background: ${item.background || '#4CAF50'};`}>
+            <div class="text-content">
+              <h1>{item.title}</h1>
+              {item.subtitle && <h2>{item.subtitle}</h2>}
+              {item.description && <p>{item.description}</p>}
+            </div>
+          </div>
+        )}
+        {item.type === 'html' && (
+          <div class="slide-html" set:html={item.content} />
+        )}
+        
+        {item.caption && (
+          <div class="slide-caption">
+            <p>{item.caption}</p>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button id="prev-slide" class="nav-arrow nav-prev">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+      <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+    </svg>
+  </button>
+  <button id="next-slide" class="nav-arrow nav-next">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+      <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+    </svg>
+  </button>
+
+  <!-- Indicators -->
+  {showIndicators && (
+    <div class="carousel-indicators">
+      {items.map((_: any, index: number) => (
+        <button 
+          class={`indicator ${index === 0 ? 'active' : ''}`} 
+          data-index={index}
+          aria-label={`Go to slide ${index + 1}`}
+        ></button>
+      ))}
+    </div>
+  )}
+
+  <!-- Progress Bar -->
+  {autoplay && (
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  )}
+</div>
+
+<style>
+  .mixed-carousel-container {
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .carousel-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .carousel-slide {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-text {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .text-content h1 {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  .text-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 300;
+    opacity: 0.9;
+  }
+
+  .text-content p {
+    font-size: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .slide-html {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .slide-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    padding: 30px;
+  }
+
+  .slide-caption p {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 4px;
+    padding: 15px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
+    opacity: 0;
+  }
+
+  .mixed-carousel-container:hover .nav-arrow {
+    opacity: 1;
+  }
+
+  .nav-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .nav-prev {
+    left: 20px;
+  }
+
+  .nav-next {
+    right: 20px;
+  }
+
+  .carousel-indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .indicator:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .indicator.active {
+    background: white;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    width: 0%;
+    transition: width linear;
+  }
+
+  /* Responsive text sizes */
+  @media (max-width: 768px) {
+    .text-content h1 {
+      font-size: 2.5rem;
+    }
+    .text-content h2 {
+      font-size: 1.5rem;
+    }
+    .text-content p {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+
+<script define:vars={{ items, autoplay, duration }}>
+  const slides = document.querySelectorAll('.carousel-slide');
+  const indicators = document.querySelectorAll('.indicator');
+  const progressFill = document.querySelector('.progress-fill') as HTMLElement;
+  const prevBtn = document.getElementById('prev-slide');
+  const nextBtn = document.getElementById('next-slide');
+  
+  let currentSlide = 0;
+  let autoplayInterval: NodeJS.Timeout | null = null;
+  let progressInterval: NodeJS.Timeout | null = null;
+
+  function showSlide(index: number) {
+    // Hide all slides
+    slides.forEach((slide, i) => {
+      (slide as HTMLElement).style.display = i === index ? 'block' : 'none';
+      
+      // Handle video playback
+      const video = slide.querySelector('video');
+      if (video) {
+        if (i === index) {
+          video.play();
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      }
+    });
+
+    // Update indicators
+    indicators.forEach((indicator, i) => {
+      indicator.classList.toggle('active', i === index);
+    });
+
+    currentSlide = index;
+
+    // Reset progress bar
+    if (autoplay && progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+      
+      setTimeout(() => {
+        progressFill.style.transition = `width ${duration}ms linear`;
+        progressFill.style.width = '100%';
+      }, 50);
+    }
+  }
+
+  function nextSlide() {
+    const next = (currentSlide + 1) % slides.length;
+    showSlide(next);
+  }
+
+  function prevSlide() {
+    const prev = currentSlide === 0 ? slides.length - 1 : currentSlide - 1;
+    showSlide(prev);
+  }
+
+  // Navigation buttons
+  prevBtn?.addEventListener('click', () => {
+    stopAutoplay();
+    prevSlide();
+    startAutoplay();
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    stopAutoplay();
+    nextSlide();
+    startAutoplay();
+  });
+
+  // Indicator clicks
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+      stopAutoplay();
+      showSlide(index);
+      startAutoplay();
+    });
+  });
+
+  // Autoplay
+  function startAutoplay() {
+    if (autoplay && slides.length > 1) {
+      autoplayInterval = setInterval(nextSlide, duration);
+    }
+  }
+
+  function stopAutoplay() {
+    if (autoplayInterval) {
+      clearInterval(autoplayInterval);
+      autoplayInterval = null;
+    }
+  }
+
+  // Touch support
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      stopAutoplay();
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+      startAutoplay();
+    }
+  }
+
+  // Handle video end
+  slides.forEach((slide) => {
+    const video = slide.querySelector('video');
+    if (video) {
+      video.addEventListener('ended', () => {
+        if (autoplay) {
+          nextSlide();
+        }
+      });
+    }
+  });
+
+  // Pause autoplay on hover (optional)
+  const container = document.querySelector('.mixed-carousel-container');
+  container?.addEventListener('mouseenter', stopAutoplay);
+  container?.addEventListener('mouseleave', startAutoplay);
+
+  // Initialize
+  showSlide(0);
+  startAutoplay();
+</script>

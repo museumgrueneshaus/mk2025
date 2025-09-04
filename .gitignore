@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Strapi
+kiosk-backend/.tmp/
+kiosk-backend/.cache/
+kiosk-backend/build/
+kiosk-backend/dist/
+kiosk-backend/.strapi-updater.json
+kiosk-backend/exports/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Production
+dist/
+build/
+
+# PlatformIO
+esp32-led-controller/.pio/
+esp32-led-controller/.vscode/
+
+# Raspberry Pi
+*.img
+*.img.xz
+*.iso
+pi-gen/
+work/
+deploy/
+
+# Misc
+.cache/
+tmp/
+temp/

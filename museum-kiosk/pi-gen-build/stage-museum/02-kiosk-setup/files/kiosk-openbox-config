@@ -1,0 +1,20 @@
+# Openbox autostart configuration for Museum Kiosk
+# This file is executed when openbox starts
+
+# Disable screen saver and power management
+xset s off &
+xset -dpms &
+xset s noblank &
+
+# Hide mouse cursor when idle
+unclutter -idle 0.5 -root &
+
+# Set background color to black
+xsetroot -solid "#000000" &
+
+# Disable right-click menu
+xmodmap -e "pointer = 1 2 32 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 3" &
+
+# Start the kiosk browser
+# Note: The museum-kiosk.service handles the actual browser startup
+# This is just a backup method if running via GUI
