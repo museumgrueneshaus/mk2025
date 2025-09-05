@@ -32,6 +32,11 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+# Functions Configuration for File Uploads
+[functions]
+  # Enable larger payload size for file uploads
+  max_body_size = "10MB"
+
 # Keine SPA Fallback für Astro SSR
 
 # Umgebungsvariablen (in Netlify UI setzen)

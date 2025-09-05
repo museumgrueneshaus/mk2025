@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
+import { getStore } from '@netlify/blobs';
 
 // API routes require server-side rendering
 export const prerender = false;
@@ -29,30 +30,66 @@ export const POST: APIRoute = async ({ request }) => {
       targetDir = 'audio';
     }
 
-    // Create directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'media', targetDir);
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    // Save file
+    // Generate unique filename
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const filePath = path.join(uploadDir, fileName);
+    const blobKey = `${targetDir}/${fileName}`;
     
+    // Get file content as array buffer
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    await fs.writeFile(filePath, buffer);
-
-    // Return the public URL path
-    const publicPath = `/media/${targetDir}/${fileName}`;
     
-    return new Response(JSON.stringify({ 
-      success: true,
-      path: publicPath,
-      name: file.name,
-      type: targetDir
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Check if running on Netlify (use Blobs) or locally (use filesystem)
+    const isNetlify = process.env.NETLIFY === 'true' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    
+    if (isNetlify) {
+      // Use Netlify Blobs for production
+      const store = getStore({
+        name: 'museum-media',
+        siteID: process.env.NETLIFY_SITE_ID || ''
+      });
+      
+      await store.set(blobKey, arrayBuffer, {
+        metadata: {
+          contentType: file.type,
+          originalName: file.name,
+          uploadDate: new Date().toISOString()
+        }
+      });
+      
+      // Return Netlify Blobs URL (will be accessible via /.netlify/blobs/)
+      const publicPath = `/.netlify/blobs/museum-media/${blobKey}`;
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        path: publicPath,
+        name: file.name,
+        type: targetDir,
+        storage: 'blobs'
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else {
+      // Use filesystem for local development
+      const uploadDir = path.join(process.cwd(), 'public', 'media', targetDir);
+      await fs.mkdir(uploadDir, { recursive: true });
+      
+      const filePath = path.join(uploadDir, fileName);
+      const buffer = Buffer.from(arrayBuffer);
+      await fs.writeFile(filePath, buffer);
+      
+      const publicPath = `/media/${targetDir}/${fileName}`;
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        path: publicPath,
+        name: file.name,
+        type: targetDir,
+        storage: 'filesystem'
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
   } catch (error) {
     console.error('Upload error:', error);
     return new Response(JSON.stringify({ 
@@ -69,34 +106,67 @@ export const POST: APIRoute = async ({ request }) => {
 export const GET: APIRoute = async ({ url }) => {
   try {
     const type = url.searchParams.get('type') || 'all';
-    const mediaDir = path.join(process.cwd(), 'public', 'media');
+    const isNetlify = process.env.NETLIFY === 'true' || process.env.AWS_LAMBDA_FUNCTION_NAME;
     
     let files: any[] = [];
     const directories = type === 'all' 
       ? ['images', 'videos', 'pdfs', 'audio'] 
       : [type];
 
-    for (const dir of directories) {
-      const dirPath = path.join(mediaDir, dir);
+    if (isNetlify) {
+      // Use Netlify Blobs for production
       try {
-        const dirFiles = await fs.readdir(dirPath);
-        const fileList = dirFiles
-          .filter(f => !f.startsWith('.')) // Skip hidden files
-          .map(f => ({
-            name: f,
-            path: `/media/${dir}/${f}`,
-            type: dir
-          }));
-        files = files.concat(fileList);
+        const store = getStore({
+          name: 'museum-media',
+          siteID: process.env.NETLIFY_SITE_ID || ''
+        });
+        
+        // List all blobs and filter by directories
+        const allBlobs = await store.list();
+        
+        for (const dir of directories) {
+          const dirFiles = allBlobs.blobs
+            .filter(blob => blob.key.startsWith(`${dir}/`))
+            .map(blob => ({
+              name: path.basename(blob.key),
+              path: `/.netlify/blobs/museum-media/${blob.key}`,
+              type: dir,
+              storage: 'blobs',
+              metadata: blob.metadata
+            }));
+          files = files.concat(dirFiles);
+        }
       } catch (err) {
-        // Directory might not exist yet
-        console.log(`Directory ${dir} not found, skipping`);
+        console.log('Netlify Blobs not available or empty, skipping');
+      }
+    } else {
+      // Use filesystem for local development
+      const mediaDir = path.join(process.cwd(), 'public', 'media');
+      
+      for (const dir of directories) {
+        const dirPath = path.join(mediaDir, dir);
+        try {
+          const dirFiles = await fs.readdir(dirPath);
+          const fileList = dirFiles
+            .filter(f => !f.startsWith('.')) // Skip hidden files
+            .map(f => ({
+              name: f,
+              path: `/media/${dir}/${f}`,
+              type: dir,
+              storage: 'filesystem'
+            }));
+          files = files.concat(fileList);
+        } catch (err) {
+          // Directory might not exist yet
+          console.log(`Directory ${dir} not found, skipping`);
+        }
       }
     }
 
     return new Response(JSON.stringify({ 
       success: true,
-      files 
+      files,
+      storage: isNetlify ? 'blobs' : 'filesystem'
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
