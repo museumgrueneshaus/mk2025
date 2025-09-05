@@ -1,5 +1,6 @@
 ---
 import KioskLayout from '../../layouts/KioskLayout.astro';
+import kiosksData from '../../../public/config/kiosks.json';
 
 // Import all templates
 import SlideshowAuto from '../../layouts/templates/SlideshowAuto.astro';
@@ -36,25 +37,18 @@ export const prerender = true;
 
 const { mac } = Astro.params;
 
-// Load kiosk configuration
-let config;
-try {
-  const response = await fetch(new URL('/config/kiosks.json', Astro.url));
-  const kiosks = await response.json();
-  config = kiosks[mac] || kiosks['aa-bb-cc-dd-ee-01']; // Default fallback
-} catch (error) {
-  console.error('Failed to load config:', error);
-  config = {
-    name: 'Default',
-    layout: 'slideshow-auto',
-    content: {
-      images: [
-        'https://images.unsplash.com/photo-1565043666747-69f6646db940?w=1920&h=1080&fit=crop',
-        'https://images.unsplash.com/photo-1513038630932-13873b1a7f29?w=1920&h=1080&fit=crop'
-      ]
-    }
-  };
-}
+// Load kiosk configuration directly
+const kiosks = kiosksData;
+const config = kiosks[mac] || kiosks['aa-bb-cc-dd-ee-01'] || {
+  name: 'Default',
+  layout: 'slideshow-auto',
+  content: {
+    images: [
+      'https://images.unsplash.com/photo-1565043666747-69f6646db940?w=1920&h=1080&fit=crop',
+      'https://images.unsplash.com/photo-1513038630932-13873b1a7f29?w=1920&h=1080&fit=crop'
+    ]
+  }
+};
 
 // Map layout types to components
 const layoutComponents = {
