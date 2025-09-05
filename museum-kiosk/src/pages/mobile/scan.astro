@@ -2,7 +2,7 @@
 import MobileLayout from '../../layouts/MobileLayout.astro';
 ---
 
-<MobileLayout title="QR Scanner - Museum Grünes Haus">
+<MobileLayout title="QR Scanner - Museum Grünes Haus" activeTab="scan">
   <div class="scan-page">
     <!-- Camera View -->
     <div class="camera-container">
@@ -44,9 +44,18 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
 
     <!-- Recent Scans -->
     <div class="recent-scans">
-      <h2>Zuletzt gescannt</h2>
-      <div id="recent-list" class="recent-list">
-        <p class="no-scans">Noch keine QR-Codes gescannt</p>
+      <div class="mobile-content">
+        <section class="clean-section">
+          <h2 class="clean-section-title">Zuletzt gescannt</h2>
+          <div class="clean-card">
+            <div id="recent-list" class="clean-list">
+              <div class="clean-empty">
+                <div class="clean-empty-icon">📱</div>
+                <p class="clean-empty-text">Noch keine QR-Codes gescannt</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -215,63 +224,58 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
 
   /* Recent Scans */
   .recent-scans {
-    background: white;
-    padding: 20px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-  }
-
-  .recent-scans h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
-    color: #333;
-  }
-
-  .recent-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    background: var(--color-bg);
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+    padding-top: var(--space-6);
   }
 
   .scan-item {
     display: flex;
     align-items: center;
-    padding: 12px;
-    background: #f8f8f8;
-    border-radius: 8px;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
     text-decoration: none;
-    color: #333;
-    transition: all 0.2s;
+    color: var(--color-primary);
+    transition: var(--transition);
+  }
+
+  .scan-item:hover {
+    background: var(--color-bg-alt);
   }
 
   .scan-item:active {
-    background: #e8e8e8;
+    background: var(--color-border);
+  }
+
+  .scan-item:last-child {
+    border-bottom: none;
   }
 
   .scan-item-icon {
-    font-size: 24px;
-    margin-right: 12px;
+    font-size: var(--font-size-2xl);
+    flex-shrink: 0;
   }
 
   .scan-item-info {
     flex: 1;
+    min-width: 0;
   }
 
   .scan-item-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 2px;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--space-1) 0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .scan-item-time {
-    font-size: 12px;
-    color: #999;
-  }
-
-  .no-scans {
-    text-align: center;
-    color: #999;
-    padding: 30px;
+    font-size: var(--font-size-xs);
+    color: var(--color-tertiary);
   }
 
   /* Modal */
@@ -487,7 +491,12 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
     
     if (list) {
       if (recent.length === 0) {
-        list.innerHTML = '<p class="no-scans">Noch keine QR-Codes gescannt</p>';
+        list.innerHTML = `
+          <div class="clean-empty">
+            <div class="clean-empty-icon">📱</div>
+            <p class="clean-empty-text">Noch keine QR-Codes gescannt</p>
+          </div>
+        `;
       } else {
         list.innerHTML = recent.map((scan: any) => {
           const time = new Date(scan.timestamp).toLocaleTimeString('de-DE', {
@@ -499,7 +508,7 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
             <a href="/mobile/${scan.data}" class="scan-item">
               <div class="scan-item-icon">${scan.title.split(' ')[0]}</div>
               <div class="scan-item-info">
-                <div class="scan-item-title">${scan.title}</div>
+                <h3 class="scan-item-title">${scan.title}</h3>
                 <div class="scan-item-time">${time}</div>
               </div>
             </a>
