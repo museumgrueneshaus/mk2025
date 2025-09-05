@@ -1,4 +1,6 @@
 ---
+import '../../styles/kiosk-clean.css';
+
 export interface Props {
   config: any;
 }
@@ -37,7 +39,9 @@ const showIndicators = config.features?.indicators !== false;
         
         {item.caption && (
           <div class="slide-caption">
-            <p>{item.caption}</p>
+            <div class="clean-card caption-card">
+              <p>{item.caption}</p>
+            </div>
           </div>
         )}
       </div>
@@ -45,13 +49,13 @@ const showIndicators = config.features?.indicators !== false;
   </div>
 
   <!-- Navigation Arrows -->
-  <button id="prev-slide" class="nav-arrow nav-prev">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+  <button id="prev-slide" class="nav-arrow nav-prev clean-btn">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
       <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
     </svg>
   </button>
-  <button id="next-slide" class="nav-arrow nav-next">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+  <button id="next-slide" class="nav-arrow nav-next clean-btn">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
       <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
     </svg>
   </button>
@@ -81,7 +85,7 @@ const showIndicators = config.features?.indicators !== false;
   .mixed-carousel-container {
     width: 100vw;
     height: 100vh;
-    background: #000;
+    background: var(--color-bg);
     position: relative;
     overflow: hidden;
   }
@@ -155,31 +159,41 @@ const showIndicators = config.features?.indicators !== false;
 
   .slide-caption {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    color: white;
-    padding: 30px;
+    bottom: var(--space-8);
+    left: var(--space-8);
+    right: var(--space-8);
+    pointer-events: none;
+  }
+
+  .caption-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: var(--shadow-lg);
+    pointer-events: all;
   }
 
   .slide-caption p {
-    font-size: 1.2rem;
+    font-size: var(--font-size-lg);
     margin: 0;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
   }
 
   .nav-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    border-radius: 4px;
-    padding: 15px;
-    cursor: pointer;
     z-index: 10;
-    transition: background 0.3s;
     opacity: 0;
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--color-border) !important;
+    min-height: 80px;
+    min-width: 80px;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-lg);
   }
 
   .mixed-carousel-container:hover .nav-arrow {
@@ -187,7 +201,9 @@ const showIndicators = config.features?.indicators !== false;
   }
 
   .nav-arrow:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--color-accent) !important;
+    color: white !important;
+    border-color: var(--color-accent) !important;
   }
 
   .nav-prev {
@@ -209,21 +225,24 @@ const showIndicators = config.features?.indicators !== false;
   }
 
   .indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid transparent;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: var(--transition);
+    backdrop-filter: blur(5px);
   }
 
   .indicator:hover {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--color-accent);
   }
 
   .indicator.active {
-    background: white;
+    background: var(--color-accent);
+    border-color: white;
   }
 
   .progress-bar {
@@ -231,15 +250,17 @@ const showIndicators = config.features?.indicators !== false;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
   }
 
   .progress-fill {
     height: 100%;
-    background: #4CAF50;
+    background: var(--color-accent);
     width: 0%;
     transition: width linear;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
   }
 
   /* Responsive text sizes */

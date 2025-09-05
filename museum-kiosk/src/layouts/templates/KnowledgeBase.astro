@@ -1,33 +1,34 @@
 ---
-import '../../styles/museum-premium.css';
+import '../../styles/kiosk-clean.css';
 
 const { config } = Astro.props;
 ---
 
-<div class="gallery-premium">
-  <div class="gallery-container">
-    <h1>Premium Galerie</h1>
-    <p>Museum Premium Template</p>
+<div class="kiosk-page">
+  <div class="kiosk-content">
+    <div class="container">
+      <div class="clean-empty">
+        <div class="clean-empty-icon">🏛️</div>
+        <h1 class="clean-section-title">Wissensdatenbank</h1>
+        <p class="clean-empty-text">Clean Museum Template</p>
+        
+        <div class="clean-btn-group">
+          <button class="clean-btn clean-btn-primary">Entdecken</button>
+          <button class="clean-btn">Mehr erfahren</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
-  .gallery-premium {
+  .kiosk-page {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--color-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-  }
-  
-  .gallery-container {
-    text-align: center;
-  }
-  
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    color: var(--color-primary);
   }
 </style>

@@ -1,33 +1,133 @@
 ---
-import '../../styles/museum-premium.css';
+import '../../styles/kiosk-clean.css';
 
 const { config } = Astro.props;
 ---
 
-<div class="gallery-premium">
-  <div class="gallery-container">
-    <h1>Premium Galerie</h1>
-    <p>Museum Premium Template</p>
+<div class="kiosk-page">
+  <div class="container">
+    <div class="kiosk-header">
+      <h1 class="clean-section-title">Events Calendar</h1>
+    </div>
+    <div class="kiosk-content">
+      <div class="clean-section">
+        <h2 class="clean-section-title">Today's Events</h2>
+        <div class="clean-list">
+          <div class="clean-list-item">
+            <div class="event-time">
+              <span class="clean-badge clean-badge-success">10:00 AM</span>
+            </div>
+            <div class="event-details">
+              <h3>Guided Gallery Tour</h3>
+              <p class="text-muted">Join our expert guides for a comprehensive tour of the main exhibition</p>
+            </div>
+            <div class="event-actions">
+              <button class="clean-btn">Details</button>
+            </div>
+          </div>
+          <div class="clean-list-item">
+            <div class="event-time">
+              <span class="clean-badge clean-badge-warning">2:00 PM</span>
+            </div>
+            <div class="event-details">
+              <h3>Children's Workshop</h3>
+              <p class="text-muted">Interactive art workshop for children ages 6-12</p>
+            </div>
+            <div class="event-actions">
+              <button class="clean-btn">Details</button>
+            </div>
+          </div>
+          <div class="clean-list-item">
+            <div class="event-time">
+              <span class="clean-badge">4:30 PM</span>
+            </div>
+            <div class="event-details">
+              <h3>Curator's Talk</h3>
+              <p class="text-muted">Special presentation by our chief curator about the new acquisition</p>
+            </div>
+            <div class="event-actions">
+              <button class="clean-btn">Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="clean-section">
+        <h2 class="clean-section-title">Upcoming This Week</h2>
+        <div class="clean-grid clean-grid-3">
+          <div class="clean-card">
+            <h3>Friday - Special Exhibition Opening</h3>
+            <p>Grand opening of our new contemporary art exhibition featuring local artists.</p>
+            <span class="clean-badge clean-badge-success">Free Entry</span>
+          </div>
+          <div class="clean-card">
+            <h3>Saturday - Family Day</h3>
+            <p>Special activities and workshops designed for families with children.</p>
+            <span class="clean-badge clean-badge-warning">Registration Required</span>
+          </div>
+          <div class="clean-card">
+            <h3>Sunday - Lecture Series</h3>
+            <p>Monthly lecture series featuring renowned art historians and experts.</p>
+            <span class="clean-badge">Members Only</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
-  .gallery-premium {
+  .kiosk-page {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
+    background: var(--color-bg);
+    overflow-y: auto;
+  }
+  
+  .clean-list-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-6);
     align-items: center;
-    justify-content: center;
-    color: white;
   }
   
-  .gallery-container {
-    text-align: center;
+  .event-time {
+    flex-shrink: 0;
   }
   
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+  .event-details {
+    flex: 1;
+  }
+  
+  .event-details h3 {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  .event-details p {
+    margin: 0;
+    font-size: var(--font-size-base);
+  }
+  
+  .event-actions {
+    flex-shrink: 0;
+  }
+  
+  .clean-card h3 {
+    margin-bottom: var(--space-4);
+    color: var(--color-primary);
+  }
+  
+  .clean-card p {
+    color: var(--color-secondary);
+    margin-bottom: var(--space-4);
+    flex: 1;
+  }
+  
+  .clean-grid .clean-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 </style>

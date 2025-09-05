@@ -1,33 +1,48 @@
 ---
-import '../../styles/museum-premium.css';
+import '../../styles/kiosk-clean.css';
 
 const { config } = Astro.props;
+const articles = config.content?.articles || [];
 ---
 
-<div class="knowledge-premium">
-  <div class="knowledge-container">
-    <h1>Wissensdatenbank</h1>
-    <p>Museum Premium Template</p>
+<div class="kiosk-page">
+  <div class="kiosk-header">
+    <div class="container">
+      <h1 class="clean-section-title">📚 Erweiterte Wissensdatenbank</h1>
+    </div>
+  </div>
+  
+  <div class="kiosk-content">
+    <div class="container">
+      {articles.length > 0 ? (
+        <div class="clean-grid clean-grid-2">
+          {articles.map((article: any, index: number) => (
+            <div class="clean-card">
+              <h3>{article.title || `Artikel ${index + 1}`}</h3>
+              <p class="text-muted">{article.description || 'Beschreibung folgt...'}</p>
+              <div class="clean-btn-group">
+                <button class="clean-btn clean-btn-primary">Lesen</button>
+                <button class="clean-btn">Details</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="clean-empty">
+          <div class="clean-empty-icon">📖</div>
+          <p class="clean-empty-text">Keine Artikel verfügbar</p>
+          <button class="clean-btn clean-btn-primary">Artikel hinzufügen</button>
+        </div>
+      )}
+    </div>
   </div>
 </div>
 
 <style>
-  .knowledge-premium {
+  .kiosk-page {
     width: 100vw;
-    height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-  }
-  
-  .knowledge-container {
-    text-align: center;
-  }
-  
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    min-height: 100vh;
+    background: var(--color-bg);
+    color: var(--color-primary);
   }
 </style>

@@ -1,33 +1,73 @@
 ---
-import '../../styles/museum-premium.css';
+import '../../styles/kiosk-clean.css';
 
 const { config } = Astro.props;
 ---
 
-<div class="gallery-premium">
-  <div class="gallery-container">
-    <h1>Premium Galerie</h1>
-    <p>Museum Premium Template</p>
+<div class="kiosk-page">
+  <div class="container">
+    <div class="kiosk-header">
+      <h1 class="clean-section-title">Video Player</h1>
+    </div>
+    <div class="kiosk-content">
+      <div class="clean-card">
+        <div class="video-player-container">
+          <div class="video-placeholder">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="5,3 19,12 5,21" fill="var(--color-accent)"/>
+            </svg>
+            <h2>Video Player Ready</h2>
+            <p class="text-muted">Configure your video content in the kiosk settings</p>
+          </div>
+          <div class="clean-btn-group">
+            <button class="clean-btn clean-btn-primary">Play Video</button>
+            <button class="clean-btn">Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
-  .gallery-premium {
+  .kiosk-page {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--color-bg);
+    overflow-y: auto;
+  }
+  
+  .video-player-container {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    min-height: 60vh;
+  }
+  
+  .video-placeholder {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
-  }
-  
-  .gallery-container {
+    gap: var(--space-6);
+    flex: 1;
     text-align: center;
+    color: var(--color-secondary);
   }
   
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+  .video-placeholder h2 {
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin: 0;
+  }
+  
+  .video-placeholder p {
+    font-size: var(--font-size-lg);
+    margin: 0;
+  }
+  
+  .clean-btn-group {
+    justify-content: center;
   }
 </style>
