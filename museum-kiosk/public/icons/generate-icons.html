@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Museum PWA Icons</title>
+    <style>
+        .icon-canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h3>Generating Museum PWA Icons...</h3>
+    <canvas class="icon-canvas" id="canvas"></canvas>
+    
+    <script>
+        // Generate icons in different sizes
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function generateIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Background gradient (museum colors)
+            const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#c4002f'); // MoMA red
+            gradient.addColorStop(0.5, '#00a695'); // Tate turquoise  
+            gradient.addColorStop(1, '#6b46c1'); // Guggenheim purple
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add museum icon (simplified temple)
+            ctx.fillStyle = 'white';
+            ctx.font = `${size * 0.4}px serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏛️', size/2, size/2);
+            
+            // Convert to blob and download
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // Generate all icons
+        sizes.forEach((size, index) => {
+            setTimeout(() => generateIcon(size), index * 100);
+        });
+        
+        setTimeout(() => {
+            document.body.innerHTML += '<p>✅ All icons generated! Check your downloads folder.</p>';
+        }, sizes.length * 100 + 500);
+    </script>
+</body>
+</html>

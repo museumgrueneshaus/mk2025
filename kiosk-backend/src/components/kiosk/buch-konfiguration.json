@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_kiosk_buch_konfigurationen",
+  "info": {
+    "displayName": "Buch-Konfiguration",
+    "icon": "book"
+  },
+  "options": {},
+  "attributes": {
+    "seiten": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images", "files"]
+    },
+    "startseite": {
+      "type": "integer",
+      "default": 1
+    },
+    "blaettereffekt": {
+      "type": "boolean"
+    }
+  }
+}

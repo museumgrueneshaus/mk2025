@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_kiosk_website_konfigurationen",
+  "info": {
+    "displayName": "Website-Konfiguration",
+    "icon": "link"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "vollbild": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

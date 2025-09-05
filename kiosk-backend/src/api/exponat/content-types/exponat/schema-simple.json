@@ -1,0 +1,103 @@
+{
+  "kind": "collectionType",
+  "collectionName": "exponate",
+  "info": {
+    "singularName": "exponat",
+    "pluralName": "exponate",
+    "displayName": "Exponat",
+    "description": "Einfache Struktur für kleine Museen"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "inventarnummer": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "titel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "kurzbeschreibung": {
+      "type": "text",
+      "required": true,
+      "maxLength": 500
+    },
+    "beschreibung": {
+      "type": "richtext"
+    },
+    "jahr": {
+      "type": "string"
+    },
+    "herkunft": {
+      "type": "string"
+    },
+    "material": {
+      "type": "string"
+    },
+    "standort": {
+      "type": "string"
+    },
+    "kategorie": {
+      "type": "enumeration",
+      "enum": [
+        "Alltag",
+        "Handwerk",
+        "Landwirtschaft",
+        "Kunst",
+        "Dokumente",
+        "Fotografie",
+        "Textilien",
+        "Möbel",
+        "Werkzeuge",
+        "Sonstiges"
+      ]
+    },
+    "zustand": {
+      "type": "enumeration",
+      "enum": [
+        "Sehr gut",
+        "Gut",
+        "Mittel",
+        "Restaurierungsbedürftig"
+      ]
+    },
+    "bilder": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "audio": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["audios"]
+    },
+    "schlagworte": {
+      "type": "json",
+      "default": []
+    },
+    "leihgeber": {
+      "type": "string"
+    },
+    "wert": {
+      "type": "string"
+    },
+    "notizen": {
+      "type": "text"
+    },
+    "highlight": {
+      "type": "boolean",
+      "default": false
+    },
+    "ausgestellt": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

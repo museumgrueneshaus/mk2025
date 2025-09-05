@@ -1,0 +1,57 @@
+{
+  "name": "kiosk-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Strapi application",
+  "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "start:strapi": "strapi start",
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+  },
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.22.0",
+    "@strapi/plugin-users-permissions": "5.22.0",
+    "@strapi/provider-upload-cloudinary": "^5.22.0",
+    "@strapi/strapi": "5.22.0",
+    "better-sqlite3": "11.3.0",
+    "dotenv": "^17.2.1",
+    "pg": "^8.16.3",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "8a776c82-ab45-460c-9c83-7f2fb968b0c5",
+    "installId": "584bf1c74b5649621b0a715ceaebc7c1ea9db7475a75e5235c2152386552c121"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/museumgrueneshaus/kiosk-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/museumgrueneshaus/kiosk-backend/issues"
+  },
+  "homepage": "https://github.com/museumgrueneshaus/kiosk-backend#readme"
+}

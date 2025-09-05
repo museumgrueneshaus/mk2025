@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_kiosk_slideshow_konfigurationen",
+  "info": {
+    "displayName": "Slideshow-Konfiguration",
+    "icon": "picture"
+  },
+  "options": {},
+  "attributes": {
+    "exponate": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::exponat.exponat"
+    },
+    "intervall": {
+      "type": "integer",
+      "default": 5000
+    },
+    "uebergangseffekt": {
+      "type": "enumeration",
+      "enum": ["fade", "slide", "zoom"]
+    }
+  }
+}

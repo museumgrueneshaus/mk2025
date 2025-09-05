@@ -1,0 +1,144 @@
+{
+  "kind": "collectionType",
+  "collectionName": "exponate",
+  "info": {
+    "singularName": "exponat",
+    "pluralName": "exponate",
+    "displayName": "Exponat",
+    "description": "Zentrale Wissensdatenbank für alle Museumsobjekte"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "titel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "untertitel": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "kurzbeschreibung": {
+      "type": "text",
+      "maxLength": 500,
+      "required": true
+    },
+    "beschreibung": {
+      "type": "richtext"
+    },
+    "bilder": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "hauptbild": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "audio": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["audios"]
+    },
+    "videos": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["videos"]
+    },
+    "dokumente": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["files"]
+    },
+    "epoche": {
+      "type": "enumeration",
+      "enum": [
+        "Vorgeschichte",
+        "Antike",
+        "Mittelalter",
+        "Neuzeit",
+        "Moderne",
+        "Zeitgenössisch"
+      ]
+    },
+    "jahr_von": {
+      "type": "integer"
+    },
+    "jahr_bis": {
+      "type": "integer"
+    },
+    "entstehungsort": {
+      "type": "string"
+    },
+    "material": {
+      "type": "string"
+    },
+    "masse": {
+      "type": "string"
+    },
+    "inventarnummer": {
+      "type": "string",
+      "unique": true
+    },
+    "standort": {
+      "type": "string"
+    },
+    "leihgeber": {
+      "type": "string"
+    },
+    "kuenstler": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json",
+      "default": []
+    },
+    "metadaten": {
+      "type": "json",
+      "default": {}
+    },
+    "qr_code": {
+      "type": "string",
+      "unique": true
+    },
+    "ist_highlight": {
+      "type": "boolean",
+      "default": false
+    },
+    "reihenfolge": {
+      "type": "integer",
+      "default": 0
+    },
+    "playlists": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::playlist.playlist",
+      "inversedBy": "exponate"
+    },
+    "imdas_original": {
+      "type": "json",
+      "default": {},
+      "description": "Original IMDAS-Daten falls importiert"
+    },
+    "externe_ids": {
+      "type": "json",
+      "default": {},
+      "description": "IDs aus anderen Systemen (GND, VIAF, etc.) wenn vorhanden"
+    },
+    "mediathek": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::mediathek.mediathek",
+      "mappedBy": "exponate"
+    }
+  }
+}

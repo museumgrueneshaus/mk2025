@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_kiosk_explorer_konfigurationen",
+  "info": {
+    "displayName": "Explorer-Konfiguration",
+    "icon": "layer"
+  },
+  "options": {},
+  "attributes": {
+    "exponate": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::exponat.exponat"
+    },
+    "darstellungsmodus": {
+      "type": "enumeration",
+      "enum": ["grid", "liste"]
+    }
+  }
+}

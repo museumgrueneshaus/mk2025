@@ -1,0 +1,125 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mediathek",
+  "info": {
+    "singularName": "mediathek",
+    "pluralName": "mediatheken",
+    "displayName": "Mediathek",
+    "description": "Digitale Medien für Kiosk-Displays (PDFs, Videos, Präsentationen)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "titel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "beschreibung": {
+      "type": "text",
+      "maxLength": 1000
+    },
+    "typ": {
+      "type": "enumeration",
+      "enum": [
+        "pdf",
+        "video",
+        "audio",
+        "präsentation",
+        "interaktiv",
+        "bild",
+        "dokument"
+      ],
+      "required": true
+    },
+    "datei": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "vorschaubild": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "dauer": {
+      "type": "integer",
+      "min": 0
+    },
+    "seiten": {
+      "type": "integer",
+      "min": 0
+    },
+    "sprache": {
+      "type": "enumeration",
+      "enum": [
+        "de",
+        "en",
+        "fr",
+        "es",
+        "it",
+        "nl",
+        "pl",
+        "ru",
+        "zh",
+        "ja"
+      ],
+      "default": "de"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "externe_url": {
+      "type": "string",
+      "regex": "^https?:\\/\\/"
+    },
+    "ist_aktiv": {
+      "type": "boolean",
+      "default": true
+    },
+    "reihenfolge": {
+      "type": "integer",
+      "default": 0
+    },
+    "kategorie": {
+      "type": "enumeration",
+      "enum": [
+        "ausstellung",
+        "sammlung",
+        "bildung",
+        "forschung",
+        "veranstaltung",
+        "archiv",
+        "kinder",
+        "führung"
+      ]
+    },
+    "kiosks": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::kiosk.kiosk",
+      "inversedBy": "mediathek"
+    },
+    "playlists": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::playlist.playlist",
+      "mappedBy": "mediathek"
+    },
+    "exponate": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::exponat.exponat",
+      "inversedBy": "mediathek"
+    }
+  }
+}

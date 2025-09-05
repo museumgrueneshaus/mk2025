@@ -1,0 +1,14 @@
+node_modules
+.tmp
+.cache
+.git
+.env
+build
+dist
+logs
+*.log
+npm-debug.log*
+.strapi-updater.json
+.strapi
+public/uploads/*
+!public/uploads/.gitkeep
