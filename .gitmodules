@@ -1,3 +1,20 @@
-# Empty submodule configuration
-# These directories are not actual submodules, just local folders
-# This file exists to prevent Netlify build errors
+# Submodule configuration for Netlify compatibility
+[submodule "esp32-led-controller"]
+	path = esp32-led-controller
+	url = https://github.com/museumgrueneshaus/mk2025.git
+
+[submodule "katalog-frontend"]
+	path = katalog-frontend
+	url = https://github.com/museumgrueneshaus/mk2025.git
+
+[submodule "kiosk-backend"]
+	path = kiosk-backend
+	url = https://github.com/museumgrueneshaus/mk2025.git
+
+[submodule "frontend-kiosk"]
+	path = frontend-kiosk
+	url = https://github.com/museumgrueneshaus/mk2025.git
+
+[submodule "raspberry-pi-setup"]
+	path = raspberry-pi-setup
+	url = https://github.com/museumgrueneshaus/mk2025.git
