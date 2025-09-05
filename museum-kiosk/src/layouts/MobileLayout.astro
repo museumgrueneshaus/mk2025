@@ -162,27 +162,6 @@ const {
     <a href="#navigation" class="skip-link">Zur Navigation springen</a>
     
     <div class="app-container">
-      <!-- Status Bar (iOS Style) -->
-      <div class="status-bar" role="banner" aria-label="Status Bar">
-        <div class="status-left">
-          <span id="status-time" aria-live="polite" aria-label="Aktuelle Uhrzeit">10:15</span>
-        </div>
-        <div class="status-center">
-          <div class="notch" aria-hidden="true"></div>
-        </div>
-        <div class="status-right" aria-label="Gerätestatus">
-          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor" aria-label="WLAN Signal">
-            <path d="M1 9l2-2v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7l2 2V2h-4v4.5l-2-2L12.5 0l-11 11v-2z"/>
-          </svg>
-          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor" aria-label="Mobilfunk Signal">
-            <path d="M2 17h20v2H2zm1.15-4.05L4 11.47l.85 1.48 1.3-.75-.85-1.48H7v-1.5H5.3l.85-1.48L4.85 7 4 8.47 3.15 7l-1.3.75.85 1.48H1v1.5h1.7l-.85 1.48 1.3.75zm6.7-.75l1.48.85 1.48-.85-.85-1.48H14v-1.5h-2.05l.85-1.48-1.48-.85L10 8.47 8.68 7l-1.48.85.85 1.48H6v1.5h2.05l-.85 1.48zm8 0l1.48.85 1.48-.85-.85-1.48H22v-1.5h-2.05l.85-1.48-1.48-.85L18 8.47 16.68 7l-1.48.85.85 1.48H14v1.5h2.05l-.85 1.48z"/>
-          </svg>
-          <div class="battery" aria-label="Batterie 70%">
-            <div class="battery-level"></div>
-            <span class="sr-only">Batterie bei 70%</span>
-          </div>
-        </div>
-      </div>
 
       <!-- Main Content -->
       <main id="main-content" class="app-main page-enter" role="main" aria-label="Museum Hauptinhalt">
@@ -299,123 +278,12 @@ const {
     overflow: hidden;
   }
 
-  /* Status Bar */
-  .status-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 44px;
-    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
-    background: rgba(26, 26, 46, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 1000;
-    font-size: 14px;
-    font-weight: 600;
-  }
 
-  .status-left,
-  .status-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 16px;
-  }
-
-  .status-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .notch {
-    display: none;
-  }
-
-  /* iPhone Dynamic Island / Modern Notch */
-  @media screen and (max-width: 430px) {
-    .notch {
-      display: block;
-      width: 126px;
-      height: 37px;
-      background: black;
-      border-radius: 19px;
-      position: relative;
-    }
-
-    /* iPhone 14 Pro Max Dynamic Island */
-    @media screen and (max-width: 430px) and (max-height: 932px) {
-      .notch {
-        width: 126px;
-        height: 37px;
-        border-radius: 19px;
-      }
-    }
-
-    /* iPhone 14 Pro Dynamic Island */
-    @media screen and (max-width: 393px) and (max-height: 852px) {
-      .notch {
-        width: 126px;
-        height: 37px;
-        border-radius: 19px;
-      }
-    }
-
-    /* iPhone 13/12 series notch */
-    @media screen and (max-width: 390px) and (max-height: 844px) {
-      .notch {
-        width: 164px;
-        height: 32px;
-        border-radius: 0 0 16px 16px;
-      }
-    }
-
-    /* iPhone 11 Pro / X series notch */
-    @media screen and (max-width: 375px) and (max-height: 812px) {
-      .notch {
-        width: 164px;
-        height: 30px;
-        border-radius: 0 0 16px 16px;
-      }
-    }
-  }
-
-  .battery {
-    width: 24px;
-    height: 12px;
-    border: 1px solid white;
-    border-radius: 2px;
-    position: relative;
-    padding: 1px;
-  }
-
-  .battery::after {
-    content: '';
-    position: absolute;
-    right: -3px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 2px;
-    height: 6px;
-    background: white;
-    border-radius: 0 1px 1px 0;
-  }
-
-  .battery-level {
-    width: 70%;
-    height: 100%;
-    background: white;
-    border-radius: 1px;
-  }
 
   /* Main Content */
   .app-main {
     flex: 1;
-    padding-top: 44px;
+    padding-top: env(safe-area-inset-top);
     padding-bottom: calc(83px + env(safe-area-inset-bottom));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -707,13 +575,8 @@ const {
 
   /* Safe Areas */
   @supports (padding: max(0px)) {
-    .status-bar {
-      padding-top: env(safe-area-inset-top);
-      height: calc(44px + env(safe-area-inset-top));
-    }
-
     .app-main {
-      padding-top: calc(44px + env(safe-area-inset-top));
+      padding-top: env(safe-area-inset-top);
     }
   }
 
@@ -721,11 +584,6 @@ const {
   @media (prefers-color-scheme: light) {
     .app-container {
       background: white;
-      color: var(--color-primary);
-    }
-
-    .status-bar {
-      background: rgba(255, 255, 255, 0.95);
       color: var(--color-primary);
     }
 
@@ -745,20 +603,6 @@ const {
 </style>
 
 <script>
-  // Update time in status bar
-  function updateStatusTime() {
-    const timeEl = document.getElementById('status-time');
-    if (timeEl) {
-      const now = new Date();
-      timeEl.textContent = now.toLocaleTimeString('de-DE', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }
-  }
-  
-  updateStatusTime();
-  setInterval(updateStatusTime, 1000);
 
   // Update favorites count
   function updateFavoritesCount() {
@@ -1134,34 +978,6 @@ const {
   document.addEventListener('DOMContentLoaded', () => {
     new GestureNavigation();
     new AccessibilityManager();
-    
-    // Dynamic battery level updates
-    if ('getBattery' in navigator) {
-      navigator.getBattery().then(battery => {
-        const updateBatteryUI = () => {
-          const batteryLevel = document.querySelector('.battery-level');
-          const batteryContainer = document.querySelector('.battery');
-          if (batteryLevel && batteryContainer) {
-            const percentage = Math.round(battery.level * 100);
-            batteryLevel.style.width = `${percentage}%`;
-            batteryContainer.setAttribute('aria-label', `Batterie ${percentage}%`);
-            
-            // Color coding for low battery
-            if (percentage < 20) {
-              batteryLevel.style.background = 'var(--color-error)';
-            } else if (percentage < 50) {
-              batteryLevel.style.background = 'var(--color-warning)';
-            } else {
-              batteryLevel.style.background = 'white';
-            }
-          }
-        };
-        
-        updateBatteryUI();
-        battery.addEventListener('levelchange', updateBatteryUI);
-        battery.addEventListener('chargingchange', updateBatteryUI);
-      });
-    }
   });
 
   // Page transitions with gesture support
