@@ -1,16 +1,18 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import MobileLayout from '../../../layouts/MobileLayout.astro';
 
-export async function getStaticPaths() {
-  const events = await getCollection('events');
-  return events.map(event => ({
-    params: { slug: event.slug },
-    props: { event }
-  }));
+// Get the slug from the URL
+const { slug } = Astro.params;
+
+// Get the event entry
+const event = await getEntry('events', slug);
+
+// Handle 404 if event doesn't exist
+if (!event) {
+  return Astro.redirect('/404');
 }
 
-const { event } = Astro.props;
 const { Content } = await event.render();
 
 // Format date

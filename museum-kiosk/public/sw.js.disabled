@@ -48,6 +48,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
+  // Skip caching in development mode
+  if (request.url.includes('localhost:4321')) {
+    return;
+  }
+  
   // Viewer-Seiten aggressiv cachen
   if (request.url.includes('/viewer/')) {
     event.respondWith(

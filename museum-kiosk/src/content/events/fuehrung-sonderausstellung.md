@@ -1,6 +1,6 @@
 ---
 title: Führung durch die Sonderausstellung
-date: 2024-02-15
+date: 2025-09-07T00:00:00Z
 time: "14:00"
 duration: 60
 location: Foyer Museum Grünes Haus

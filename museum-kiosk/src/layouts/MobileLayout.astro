@@ -1,375 +1,813 @@
 ---
+import '../styles/world-class-museum.css';
+
 export interface Props {
   title?: string;
   description?: string;
-  lang?: string;
+  activeTab?: 'home' | 'exhibits' | 'events' | 'map' | 'favorites';
 }
 
 const { 
   title = 'Museum Grünes Haus', 
   description = 'Digitales Museum Reutte',
-  lang = 'de'
+  activeTab = 'home'
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <meta name="theme-color" content="#4CAF50" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#1a1a2e" />
     
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA Meta Tags - Temporarily disabled -->
+    <!-- <link rel="manifest" href="/manifest.json" /> -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    
-    <!-- Prevent zooming on input focus (iOS) -->
-    <meta name="format-detection" content="telephone=no" />
+    <!-- <link rel="apple-touch-icon" href="/icons/icon-192.png" /> -->
     
     <title>{title}</title>
     
-    <!-- Open Graph -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/og-image.jpg" />
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Temporary ServiceWorker cleanup for development -->
+    <script src="/unregister-sw.js" is:inline></script>
   </head>
   <body>
-    <div class="mobile-container">
-      <!-- Mobile Header -->
-      <header class="mobile-header">
-        <button class="back-btn" onclick="history.back()" aria-label="Zurück">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    <div class="app-container">
+      <!-- Status Bar (iOS Style) -->
+      <div class="status-bar">
+        <div class="status-left">
+          <span id="status-time">10:15</span>
+        </div>
+        <div class="status-center">
+          <div class="notch"></div>
+        </div>
+        <div class="status-right">
+          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M1 9l2-2v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7l2 2V2h-4v4.5l-2-2L12.5 0l-11 11v-2z"/>
           </svg>
-        </button>
-        <h1 class="mobile-title">Museum Grünes Haus</h1>
-        <button class="menu-btn" id="mobile-menu-btn" aria-label="Menü">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2 17h20v2H2zm1.15-4.05L4 11.47l.85 1.48 1.3-.75-.85-1.48H7v-1.5H5.3l.85-1.48L4.85 7 4 8.47 3.15 7l-1.3.75.85 1.48H1v1.5h1.7l-.85 1.48 1.3.75zm6.7-.75l1.48.85 1.48-.85-.85-1.48H14v-1.5h-2.05l.85-1.48-1.48-.85L10 8.47 8.68 7l-1.48.85.85 1.48H6v1.5h2.05l-.85 1.48zm8 0l1.48.85 1.48-.85-.85-1.48H22v-1.5h-2.05l.85-1.48-1.48-.85L18 8.47 16.68 7l-1.48.85.85 1.48H14v1.5h2.05l-.85 1.48z"/>
           </svg>
-        </button>
-      </header>
+          <div class="battery">
+            <div class="battery-level"></div>
+          </div>
+        </div>
+      </div>
 
       <!-- Main Content -->
-      <main class="mobile-main">
+      <main class="app-main page-enter">
         <slot />
       </main>
 
-      <!-- Mobile Navigation -->
-      <nav class="mobile-nav" id="mobile-nav">
-        <div class="nav-overlay" id="nav-overlay"></div>
-        <div class="nav-panel">
-          <button class="nav-close" id="nav-close">×</button>
-          <ul class="nav-list">
-            <li><a href="/mobile">🏠 Start</a></li>
-            <li><a href="/mobile/exhibits">🖼️ Exponate</a></li>
-            <li><a href="/mobile/events">📅 Veranstaltungen</a></li>
-            <li><a href="/mobile/tours">🎧 Audio-Guide</a></li>
-            <li><a href="/mobile/map">🗺️ Karte</a></li>
-            <li><a href="/mobile/info">ℹ️ Information</a></li>
-          </ul>
-          
-          <!-- Language Switcher -->
-          <div class="language-switcher">
-            <button data-lang="de" class="lang-btn active">DE</button>
-            <button data-lang="en" class="lang-btn">EN</button>
-            <button data-lang="it" class="lang-btn">IT</button>
+      <!-- Tab Bar Navigation -->
+      <nav class="tab-bar glass">
+        <a href="/mobile" class="tab-item {activeTab === 'home' ? 'active' : ''}" data-tab="home">
+          <div class="tab-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
           </div>
-        </div>
+          <span class="tab-label">Start</span>
+        </a>
+        
+        <a href="/mobile/exhibits" class="tab-item {activeTab === 'exhibits' ? 'active' : ''}" data-tab="exhibits">
+          <div class="tab-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </div>
+          <span class="tab-label">Exponate</span>
+        </a>
+        
+        <a href="/mobile/scan" class="tab-item scan-button" data-tab="scan">
+          <div class="scan-icon-wrapper">
+            <div class="scan-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M3 5v4h2V5h4V3H5c-1.1 0-2 .9-2 2zm2 10H3v4c0 1.1.9 2 2 2h4v-2H5v-4zm14 4h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5c0-1.1-.9-2-2-2z"/>
+              </svg>
+            </div>
+          </div>
+          <span class="tab-label">Scan</span>
+        </a>
+        
+        <a href="/mobile/events" class="tab-item {activeTab === 'events' ? 'active' : ''}" data-tab="events">
+          <div class="tab-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+            </svg>
+            <div class="badge">3</div>
+          </div>
+          <span class="tab-label">Events</span>
+        </a>
+        
+        <a href="/mobile/favorites" class="tab-item {activeTab === 'favorites' ? 'active' : ''}" data-tab="favorites">
+          <div class="tab-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <div class="badge" id="favorites-count">0</div>
+          </div>
+          <span class="tab-label">Favoriten</span>
+        </a>
       </nav>
     </div>
-    
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        background: #f5f5f5;
-        color: #333;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        overflow-x: hidden;
-      }
-
-      .mobile-container {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      /* Header */
-      .mobile-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 56px;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 16px;
-        z-index: 100;
-      }
-
-      .back-btn,
-      .menu-btn {
-        background: none;
-        border: none;
-        padding: 8px;
-        color: #666;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .mobile-title {
-        font-size: 18px;
-        font-weight: 500;
-        color: #333;
-        flex: 1;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      /* Main Content */
-      .mobile-main {
-        flex: 1;
-        padding-top: 56px; /* Header height */
-        padding-bottom: 20px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      /* Navigation Drawer */
-      .mobile-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 200;
-        pointer-events: none;
-      }
-
-      .nav-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        opacity: 0;
-        transition: opacity 0.3s;
-      }
-
-      .nav-panel {
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 280px;
-        max-width: 85vw;
-        background: white;
-        transform: translateX(100%);
-        transition: transform 0.3s;
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-      }
-
-      .mobile-nav.active {
-        pointer-events: auto;
-      }
-
-      .mobile-nav.active .nav-overlay {
-        opacity: 1;
-      }
-
-      .mobile-nav.active .nav-panel {
-        transform: translateX(0);
-      }
-
-      .nav-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: none;
-        border: none;
-        font-size: 36px;
-        color: #666;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-      }
-
-      .nav-list {
-        list-style: none;
-        margin-top: 40px;
-      }
-
-      .nav-list li {
-        margin: 0;
-      }
-
-      .nav-list a {
-        display: block;
-        padding: 16px 0;
-        color: #333;
-        text-decoration: none;
-        font-size: 16px;
-        border-bottom: 1px solid #eee;
-        transition: background 0.2s;
-      }
-
-      .nav-list a:active {
-        background: #f5f5f5;
-      }
-
-      /* Language Switcher */
-      .language-switcher {
-        margin-top: auto;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-        display: flex;
-        gap: 10px;
-      }
-
-      .lang-btn {
-        flex: 1;
-        padding: 10px;
-        background: #f5f5f5;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.2s;
-      }
-
-      .lang-btn.active {
-        background: #4CAF50;
-        color: white;
-        border-color: #4CAF50;
-      }
-
-      /* iOS Safe Areas */
-      @supports (padding: max(0px)) {
-        .mobile-header {
-          padding-top: max(0px, env(safe-area-inset-top));
-          height: calc(56px + env(safe-area-inset-top));
-        }
-
-        .mobile-main {
-          padding-top: calc(56px + env(safe-area-inset-top));
-          padding-bottom: max(20px, env(safe-area-inset-bottom));
-        }
-      }
-
-      /* Responsive */
-      @media (min-width: 768px) {
-        .mobile-main {
-          max-width: 768px;
-          margin: 0 auto;
-        }
-      }
-
-      /* Dark Mode Support */
-      @media (prefers-color-scheme: dark) {
-        body {
-          background: #1a1a1a;
-          color: #e0e0e0;
-        }
-
-        .mobile-header {
-          background: #2a2a2a;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .mobile-title {
-          color: #e0e0e0;
-        }
-
-        .nav-panel {
-          background: #2a2a2a;
-        }
-
-        .nav-list a {
-          color: #e0e0e0;
-          border-color: #444;
-        }
-
-        .lang-btn {
-          background: #333;
-          border-color: #555;
-          color: #e0e0e0;
-        }
-      }
-    </style>
-
-    <script>
-      // Navigation Drawer
-      const menuBtn = document.getElementById('mobile-menu-btn');
-      const nav = document.getElementById('mobile-nav');
-      const navClose = document.getElementById('nav-close');
-      const navOverlay = document.getElementById('nav-overlay');
-      
-      menuBtn?.addEventListener('click', () => {
-        nav?.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      });
-      
-      const closeNav = () => {
-        nav?.classList.remove('active');
-        document.body.style.overflow = '';
-      };
-      
-      navClose?.addEventListener('click', closeNav);
-      navOverlay?.addEventListener('click', closeNav);
-      
-      // Language Switcher
-      const langBtns = document.querySelectorAll('.lang-btn');
-      langBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const lang = btn.getAttribute('data-lang');
-          langBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          
-          // In production, this would change the language
-          // window.location.href = `/${lang}${window.location.pathname.slice(3)}`;
-        });
-      });
-      
-      // Swipe to go back (iOS-like)
-      let touchStartX = 0;
-      let touchEndX = 0;
-      
-      document.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-      });
-      
-      document.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-      });
-      
-      function handleSwipe() {
-        if (touchEndX - touchStartX > 50 && touchStartX < 30) {
-          // Swipe from left edge - go back
-          history.back();
-        }
-      }
-    </script>
   </body>
 </html>
+
+<style>
+  /* Import World-Class Museum Design System */
+  @import '../styles/world-class-museum.css';
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--gradient-dark);
+    color: white;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .status-left,
+  .status-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+  }
+
+  .status-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .notch {
+    width: 120px;
+    height: 30px;
+    background: black;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .battery {
+    width: 24px;
+    height: 12px;
+    border: 1px solid white;
+    border-radius: 2px;
+    position: relative;
+    padding: 1px;
+  }
+
+  .battery::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 6px;
+    background: white;
+    border-radius: 0 1px 1px 0;
+  }
+
+  .battery-level {
+    width: 70%;
+    height: 100%;
+    background: white;
+    border-radius: 1px;
+  }
+
+  /* Main Content */
+  .app-main {
+    flex: 1;
+    padding-top: 44px;
+    padding-bottom: calc(83px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Tab Bar - World-Class Museum Design */
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(83px + env(safe-area-inset-bottom));
+    padding: 8px 0 env(safe-area-inset-bottom);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    z-index: 999;
+    background: var(--glass-surface);
+    backdrop-filter: blur(var(--blur-strong));
+    -webkit-backdrop-filter: blur(var(--blur-strong));
+    border-top: var(--glass-border);
+    box-shadow: var(--shadow-museum);
+  }
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: all var(--transition-museum);
+    position: relative;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(var(--blur-subtle));
+    -webkit-backdrop-filter: blur(var(--blur-subtle));
+  }
+
+  .tab-item:hover {
+    background: var(--glass-hover);
+    color: var(--color-text-primary);
+  }
+
+  .tab-item.active {
+    color: var(--moma-red);
+    background: var(--glass-active);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-premium);
+  }
+
+  .tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--moma-red), var(--tate-turquoise));
+    border-radius: 2px;
+    opacity: 1;
+  }
+
+  .tab-icon {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-museum);
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  }
+
+  .tab-item.active .tab-icon {
+    transform: scale(1.15) translateY(-1px);
+    filter: drop-shadow(0 4px 12px var(--moma-red-alpha));
+  }
+
+  .tab-item:active .tab-icon {
+    transform: scale(0.95);
+  }
+
+  .tab-item.active .tab-icon svg {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .tab-label {
+    font-size: var(--text-xs);
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all var(--transition-museum);
+    text-transform: uppercase;
+  }
+
+  .tab-item.active .tab-label {
+    font-weight: 600;
+    text-shadow: 0 0 8px var(--moma-red-alpha);
+  }
+
+  /* Scan Button Special - World-Class Design */
+  .scan-button {
+    margin-top: -20px;
+    z-index: 1;
+  }
+
+  .scan-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background: var(--gradient-museum);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-museum);
+    transition: all var(--transition-museum);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--moma-red), var(--tate-turquoise), var(--pompidou-blue));
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--transition-museum);
+  }
+
+  .scan-button:hover .scan-icon-wrapper::before,
+  .scan-button.active .scan-icon-wrapper::before {
+    opacity: 1;
+  }
+
+  .scan-button:active .scan-icon-wrapper {
+    transform: scale(0.95);
+    box-shadow: var(--shadow-premium);
+  }
+
+  .scan-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Badges - World-Class Design */
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--gradient-museum);
+    color: white;
+    font-size: var(--text-xs);
+    font-family: var(--font-display);
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: var(--shadow-premium);
+    border: var(--glass-border);
+    backdrop-filter: blur(var(--blur-subtle));
+    -webkit-backdrop-filter: blur(var(--blur-subtle));
+  }
+
+  /* Page Transitions */
+  @keyframes pageSlideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pageSlideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  .page-transition-in {
+    animation: pageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .page-transition-out {
+    animation: pageSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Safe Areas */
+  @supports (padding: max(0px)) {
+    .status-bar {
+      padding-top: env(safe-area-inset-top);
+      height: calc(44px + env(safe-area-inset-top));
+    }
+
+    .app-main {
+      padding-top: calc(44px + env(safe-area-inset-top));
+    }
+  }
+
+  /* Dark Mode Support */
+  @media (prefers-color-scheme: light) {
+    .app-container {
+      background: white;
+      color: var(--color-primary);
+    }
+
+    .status-bar {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--color-primary);
+    }
+
+    .tab-bar {
+      background: rgba(255, 255, 255, 0.95);
+      border-top-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-item {
+      color: rgba(0, 0, 0, 0.4);
+    }
+
+    .tab-item.active {
+      color: var(--color-primary);
+    }
+  }
+</style>
+
+<script>
+  // Update time in status bar
+  function updateStatusTime() {
+    const timeEl = document.getElementById('status-time');
+    if (timeEl) {
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString('de-DE', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+  }
+  
+  updateStatusTime();
+  setInterval(updateStatusTime, 1000);
+
+  // Update favorites count
+  function updateFavoritesCount() {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const badge = document.getElementById('favorites-count');
+    if (badge) {
+      badge.textContent = favorites.length.toString();
+      badge.style.display = favorites.length > 0 ? 'block' : 'none';
+    }
+  }
+
+  updateFavoritesCount();
+  window.addEventListener('storage', updateFavoritesCount);
+
+  // Advanced Gesture Navigation System
+  class GestureNavigation {
+    constructor() {
+      this.startX = 0;
+      this.startY = 0;
+      this.currentX = 0;
+      this.currentY = 0;
+      this.isDragging = false;
+      this.velocity = { x: 0, y: 0 };
+      this.lastTime = 0;
+      this.lastX = 0;
+      this.lastY = 0;
+      
+      this.init();
+    }
+
+    init() {
+      const main = document.querySelector('.app-main');
+      if (!main) return;
+
+      // Touch events
+      main.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+      main.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+      main.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+
+      // Mouse events for desktop testing
+      main.addEventListener('mousedown', this.handleMouseDown.bind(this));
+      main.addEventListener('mousemove', this.handleMouseMove.bind(this));
+      main.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+      // Prevent overscroll on iOS
+      document.addEventListener('touchmove', (e) => {
+        if (e.scale !== 1) e.preventDefault();
+      }, { passive: false });
+    }
+
+    handleTouchStart(e) {
+      this.startGesture(e.touches[0].clientX, e.touches[0].clientY);
+    }
+
+    handleMouseDown(e) {
+      this.startGesture(e.clientX, e.clientY);
+    }
+
+    startGesture(x, y) {
+      this.startX = x;
+      this.startY = y;
+      this.currentX = x;
+      this.currentY = y;
+      this.lastX = x;
+      this.lastY = y;
+      this.isDragging = false;
+      this.velocity = { x: 0, y: 0 };
+      this.lastTime = Date.now();
+    }
+
+    handleTouchMove(e) {
+      if (e.touches.length > 1) return;
+      this.updateGesture(e.touches[0].clientX, e.touches[0].clientY);
+      
+      // Prevent scrolling during horizontal swipes
+      const deltaX = Math.abs(this.currentX - this.startX);
+      const deltaY = Math.abs(this.currentY - this.startY);
+      if (deltaX > deltaY && deltaX > 10) {
+        e.preventDefault();
+      }
+    }
+
+    handleMouseMove(e) {
+      if (!this.isDragging && (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5)) {
+        this.isDragging = true;
+      }
+      if (this.isDragging) {
+        this.updateGesture(e.clientX, e.clientY);
+      }
+    }
+
+    updateGesture(x, y) {
+      const now = Date.now();
+      const deltaTime = now - this.lastTime;
+      
+      if (deltaTime > 0) {
+        this.velocity.x = (x - this.lastX) / deltaTime;
+        this.velocity.y = (y - this.lastY) / deltaTime;
+      }
+
+      this.currentX = x;
+      this.currentY = y;
+      this.lastX = x;
+      this.lastY = y;
+      this.lastTime = now;
+      this.isDragging = true;
+
+      // Visual feedback for horizontal swipes
+      const deltaX = this.currentX - this.startX;
+      const main = document.querySelector('.app-main');
+      
+      if (Math.abs(deltaX) > 20 && Math.abs(deltaX) > Math.abs(this.currentY - this.startY)) {
+        const progress = Math.min(Math.abs(deltaX) / 100, 1);
+        const direction = deltaX > 0 ? 'right' : 'left';
+        
+        main.style.transform = `translateX(${deltaX * 0.3}px)`;
+        main.style.opacity = `${1 - progress * 0.2}`;
+        
+        // Add visual indicator
+        if (!document.querySelector('.swipe-indicator')) {
+          const indicator = document.createElement('div');
+          indicator.className = 'swipe-indicator';
+          indicator.innerHTML = direction === 'right' ? '← Zurück' : 'Weiter →';
+          indicator.style.cssText = `
+            position: fixed;
+            top: 50%;
+            ${direction === 'right' ? 'left: 20px' : 'right: 20px'};
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+            opacity: ${progress};
+            transition: opacity 0.1s ease;
+          `;
+          document.body.appendChild(indicator);
+        }
+      }
+    }
+
+    handleTouchEnd(e) {
+      this.endGesture();
+    }
+
+    handleMouseUp(e) {
+      this.endGesture();
+    }
+
+    endGesture() {
+      if (!this.isDragging) return;
+
+      const deltaX = this.currentX - this.startX;
+      const deltaY = this.currentY - this.startY;
+      const main = document.querySelector('.app-main');
+      
+      // Remove visual feedback
+      main.style.transform = '';
+      main.style.opacity = '';
+      
+      const indicator = document.querySelector('.swipe-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+
+      // Determine gesture type
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+      const velocityThreshold = 0.5;
+      const distanceThreshold = 80;
+
+      // Haptic feedback
+      if ('vibrate' in navigator && (absX > 30 || absY > 30)) {
+        navigator.vibrate(5);
+      }
+
+      // Horizontal swipe navigation
+      if (absX > absY && (absX > distanceThreshold || Math.abs(this.velocity.x) > velocityThreshold)) {
+        if (deltaX > 0) {
+          this.handleSwipeRight();
+        } else {
+          this.handleSwipeLeft();
+        }
+      }
+      
+      // Vertical swipe actions  
+      else if (absY > absX && (absY > distanceThreshold || Math.abs(this.velocity.y) > velocityThreshold)) {
+        if (deltaY < 0) {
+          this.handleSwipeUp();
+        } else {
+          this.handleSwipeDown();
+        }
+      }
+
+      this.isDragging = false;
+    }
+
+    handleSwipeRight() {
+      // Go back in history or to previous page
+      if (window.history.length > 1) {
+        window.history.back();
+      }
+    }
+
+    handleSwipeLeft() {
+      // Navigate to next logical page or exhibit
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/mobile/exhibit/')) {
+        // Could navigate to next exhibit
+        console.log('Swipe left: Next exhibit');
+      }
+    }
+
+    handleSwipeUp() {
+      // Quick actions menu or search
+      console.log('Swipe up: Quick actions');
+    }
+
+    handleSwipeDown() {
+      // Refresh or pull-to-refresh
+      if (window.scrollY === 0) {
+        window.location.reload();
+      }
+    }
+  }
+
+  // Initialize gesture navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    new GestureNavigation();
+  });
+
+  // Page transitions with gesture support
+  document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      if (!tab.classList.contains('active')) {
+        const main = document.querySelector('.app-main');
+        if (main) {
+          main.classList.remove('page-enter');
+          main.classList.add('page-transition-out');
+          
+          setTimeout(() => {
+            // Navigation would happen here
+          }, 300);
+        }
+      }
+    });
+  });
+
+  // Enhanced haptic feedback
+  if ('vibrate' in navigator) {
+    // Tab interactions
+    document.querySelectorAll('.tab-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        navigator.vibrate([10, 10, 20]);
+      });
+    });
+
+    // Button interactions
+    document.addEventListener('click', (e) => {
+      if (e.target.matches('button, .button, .btn')) {
+        navigator.vibrate(15);
+      }
+    });
+
+    // Card interactions
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.museum-card, .exhibit-card, .action-card')) {
+        navigator.vibrate([5, 5, 10]);
+      }
+    });
+  }
+
+  // Smooth page loading with stagger animations
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add stagger animation to cards
+    const cards = document.querySelectorAll('.museum-card, .exhibit-card, .action-card, .event-item');
+    cards.forEach((card, index) => {
+      card.classList.add('stagger-item');
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  });
+
+  // Advanced image loading with progressive enhancement
+  document.addEventListener('DOMContentLoaded', () => {
+    const images = document.querySelectorAll('img');
+    
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const container = img.closest('.image-container');
+          
+          img.addEventListener('load', () => {
+            img.classList.add('loaded');
+            if (container) {
+              container.classList.add('loaded');
+            }
+          });
+          
+          if (img.complete) {
+            img.classList.add('loaded');
+            if (container) {
+              container.classList.add('loaded');
+            }
+          }
+          
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+
+    images.forEach(img => {
+      imageObserver.observe(img);
+    });
+  });
+
+  // Performance optimization: Intersection Observer for animations
+  if ('IntersectionObserver' in window) {
+    const animationObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          animationObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.museum-card, .premium-card-hover').forEach(el => {
+      animationObserver.observe(el);
+    });
+  }
+</script>
