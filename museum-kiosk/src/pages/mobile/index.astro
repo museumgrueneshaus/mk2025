@@ -1,0 +1,407 @@
+---
+import MobileLayout from '../../layouts/MobileLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get featured content
+const exhibits = await getCollection('exhibits', ({ data }) => data.featured);
+const events = await getCollection('events', ({ data }) => {
+  return data.published && !data.cancelled && new Date(data.date) >= new Date();
+});
+
+const todayEvents = events.filter(event => {
+  const eventDate = new Date(event.data.date);
+  const today = new Date();
+  return eventDate.toDateString() === today.toDateString();
+}).slice(0, 3);
+---
+
+<MobileLayout title="Museum Grünes Haus - Mobile">
+  <div class="mobile-home">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-image">
+        <img src="/images/museum-hero-mobile.jpg" alt="Museum Grünes Haus" />
+      </div>
+      <div class="hero-content">
+        <h1>Willkommen im Museum Grünes Haus</h1>
+        <p>Entdecken Sie unsere Sammlung digital</p>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <div class="action-grid">
+        <a href="/mobile/scan" class="action-card">
+          <div class="action-icon">📷</div>
+          <span>QR Scanner</span>
+        </a>
+        <a href="/mobile/tours" class="action-card">
+          <div class="action-icon">🎧</div>
+          <span>Audio Guide</span>
+        </a>
+        <a href="/mobile/map" class="action-card">
+          <div class="action-icon">🗺️</div>
+          <span>Karte</span>
+        </a>
+        <a href="/mobile/favorites" class="action-card">
+          <div class="action-icon">❤️</div>
+          <span>Favoriten</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Today's Events -->
+    {todayEvents.length > 0 && (
+      <section class="today-events">
+        <h2>Heute im Museum</h2>
+        <div class="event-list">
+          {todayEvents.map(event => (
+            <a href={`/mobile/event/${event.slug}`} class="event-item">
+              <div class="event-time">{event.data.time}</div>
+              <div class="event-info">
+                <h3>{event.data.title}</h3>
+                <p>{event.data.location}</p>
+              </div>
+              <div class="event-arrow">›</div>
+            </a>
+          ))}
+        </div>
+        <a href="/mobile/events" class="see-all">Alle Veranstaltungen →</a>
+      </section>
+    )}
+
+    <!-- Featured Exhibits -->
+    {exhibits.length > 0 && (
+      <section class="featured">
+        <h2>Highlights der Sammlung</h2>
+        <div class="exhibit-scroll">
+          {exhibits.slice(0, 5).map(exhibit => (
+            <a href={`/mobile/exhibit/${exhibit.slug}`} class="exhibit-card">
+              <div class="exhibit-image">
+                <img src={exhibit.data.thumbnail || exhibit.data.image} alt={exhibit.data.title} />
+              </div>
+              <div class="exhibit-info">
+                <h3>{exhibit.data.title}</h3>
+                <p>{exhibit.data.artist}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Info Section -->
+    <section class="info-section">
+      <h2>Besucherinformation</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-icon">🕐</div>
+          <div class="info-content">
+            <h3>Öffnungszeiten</h3>
+            <p>Di-Sa: 13:00 - 17:00</p>
+            <p>So & Feiertage: geschlossen</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">💶</div>
+          <div class="info-content">
+            <h3>Eintritt</h3>
+            <p>Erwachsene: €5</p>
+            <p>Ermäßigt: €4</p>
+            <p>Kinder: frei</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📍</div>
+          <div class="info-content">
+            <h3>Adresse</h3>
+            <p>Untermarkt 25</p>
+            <p>6600 Reutte</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📞</div>
+          <div class="info-content">
+            <h3>Kontakt</h3>
+            <p>+43 5672 72304</p>
+            <p>info@museum-reutte.at</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</MobileLayout>
+
+<style>
+  .mobile-home {
+    background: white;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+  }
+
+  .hero-image {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+  }
+
+  .hero-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .hero-content p {
+    font-size: 16px;
+    opacity: 0.95;
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    padding: 20px;
+    background: white;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 10px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+  }
+
+  .action-card:active {
+    transform: scale(0.95);
+    background: #e8e8e8;
+  }
+
+  .action-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .action-card span {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* Today's Events */
+  .today-events {
+    padding: 20px;
+    background: #f8f8f8;
+  }
+
+  .today-events h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .event-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+  }
+
+  .event-item:active {
+    background: #f5f5f5;
+  }
+
+  .event-time {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-right: 15px;
+    min-width: 50px;
+  }
+
+  .event-info {
+    flex: 1;
+  }
+
+  .event-info h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .event-info p {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .event-arrow {
+    font-size: 24px;
+    color: #999;
+  }
+
+  .see-all {
+    display: inline-block;
+    margin-top: 10px;
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  /* Featured Exhibits */
+  .featured {
+    padding: 20px;
+    background: white;
+  }
+
+  .featured h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .exhibit-scroll {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .exhibit-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .exhibit-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .exhibit-scroll::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+  }
+
+  .exhibit-card {
+    flex-shrink: 0;
+    width: 150px;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .exhibit-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .exhibit-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .exhibit-info h3 {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .exhibit-info p {
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* Info Section */
+  .info-section {
+    padding: 20px;
+    background: #f8f8f8;
+  }
+
+  .info-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+  }
+
+  .info-icon {
+    font-size: 24px;
+  }
+
+  .info-content h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .info-content p {
+    font-size: 12px;
+    color: #666;
+    margin: 2px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 360px) {
+    .action-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

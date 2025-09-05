@@ -1,0 +1,375 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+}
+
+const { 
+  title = 'Museum Grünes Haus', 
+  description = 'Digitales Museum Reutte',
+  lang = 'de'
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#4CAF50" />
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    
+    <!-- Prevent zooming on input focus (iOS) -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <title>{title}</title>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.jpg" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="mobile-container">
+      <!-- Mobile Header -->
+      <header class="mobile-header">
+        <button class="back-btn" onclick="history.back()" aria-label="Zurück">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </button>
+        <h1 class="mobile-title">Museum Grünes Haus</h1>
+        <button class="menu-btn" id="mobile-menu-btn" aria-label="Menü">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </button>
+      </header>
+
+      <!-- Main Content -->
+      <main class="mobile-main">
+        <slot />
+      </main>
+
+      <!-- Mobile Navigation -->
+      <nav class="mobile-nav" id="mobile-nav">
+        <div class="nav-overlay" id="nav-overlay"></div>
+        <div class="nav-panel">
+          <button class="nav-close" id="nav-close">×</button>
+          <ul class="nav-list">
+            <li><a href="/mobile">🏠 Start</a></li>
+            <li><a href="/mobile/exhibits">🖼️ Exponate</a></li>
+            <li><a href="/mobile/events">📅 Veranstaltungen</a></li>
+            <li><a href="/mobile/tours">🎧 Audio-Guide</a></li>
+            <li><a href="/mobile/map">🗺️ Karte</a></li>
+            <li><a href="/mobile/info">ℹ️ Information</a></li>
+          </ul>
+          
+          <!-- Language Switcher -->
+          <div class="language-switcher">
+            <button data-lang="de" class="lang-btn active">DE</button>
+            <button data-lang="en" class="lang-btn">EN</button>
+            <button data-lang="it" class="lang-btn">IT</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+      }
+
+      .mobile-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 100;
+      }
+
+      .back-btn,
+      .menu-btn {
+        background: none;
+        border: none;
+        padding: 8px;
+        color: #666;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Main Content */
+      .mobile-main {
+        flex: 1;
+        padding-top: 56px; /* Header height */
+        padding-bottom: 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Navigation Drawer */
+      .mobile-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 200;
+        pointer-events: none;
+      }
+
+      .nav-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .nav-panel {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        background: white;
+        transform: translateX(100%);
+        transition: transform 0.3s;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+
+      .mobile-nav.active {
+        pointer-events: auto;
+      }
+
+      .mobile-nav.active .nav-overlay {
+        opacity: 1;
+      }
+
+      .mobile-nav.active .nav-panel {
+        transform: translateX(0);
+      }
+
+      .nav-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 36px;
+        color: #666;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+      }
+
+      .nav-list {
+        list-style: none;
+        margin-top: 40px;
+      }
+
+      .nav-list li {
+        margin: 0;
+      }
+
+      .nav-list a {
+        display: block;
+        padding: 16px 0;
+        color: #333;
+        text-decoration: none;
+        font-size: 16px;
+        border-bottom: 1px solid #eee;
+        transition: background 0.2s;
+      }
+
+      .nav-list a:active {
+        background: #f5f5f5;
+      }
+
+      /* Language Switcher */
+      .language-switcher {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 10px;
+      }
+
+      .lang-btn {
+        flex: 1;
+        padding: 10px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .lang-btn.active {
+        background: #4CAF50;
+        color: white;
+        border-color: #4CAF50;
+      }
+
+      /* iOS Safe Areas */
+      @supports (padding: max(0px)) {
+        .mobile-header {
+          padding-top: max(0px, env(safe-area-inset-top));
+          height: calc(56px + env(safe-area-inset-top));
+        }
+
+        .mobile-main {
+          padding-top: calc(56px + env(safe-area-inset-top));
+          padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+      }
+
+      /* Responsive */
+      @media (min-width: 768px) {
+        .mobile-main {
+          max-width: 768px;
+          margin: 0 auto;
+        }
+      }
+
+      /* Dark Mode Support */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #1a1a1a;
+          color: #e0e0e0;
+        }
+
+        .mobile-header {
+          background: #2a2a2a;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .mobile-title {
+          color: #e0e0e0;
+        }
+
+        .nav-panel {
+          background: #2a2a2a;
+        }
+
+        .nav-list a {
+          color: #e0e0e0;
+          border-color: #444;
+        }
+
+        .lang-btn {
+          background: #333;
+          border-color: #555;
+          color: #e0e0e0;
+        }
+      }
+    </style>
+
+    <script>
+      // Navigation Drawer
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const nav = document.getElementById('mobile-nav');
+      const navClose = document.getElementById('nav-close');
+      const navOverlay = document.getElementById('nav-overlay');
+      
+      menuBtn?.addEventListener('click', () => {
+        nav?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+      
+      const closeNav = () => {
+        nav?.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+      
+      navClose?.addEventListener('click', closeNav);
+      navOverlay?.addEventListener('click', closeNav);
+      
+      // Language Switcher
+      const langBtns = document.querySelectorAll('.lang-btn');
+      langBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lang = btn.getAttribute('data-lang');
+          langBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // In production, this would change the language
+          // window.location.href = `/${lang}${window.location.pathname.slice(3)}`;
+        });
+      });
+      
+      // Swipe to go back (iOS-like)
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+      
+      document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+      
+      function handleSwipe() {
+        if (touchEndX - touchStartX > 50 && touchStartX < 30) {
+          // Swipe from left edge - go back
+          history.back();
+        }
+      }
+    </script>
+  </body>
+</html>

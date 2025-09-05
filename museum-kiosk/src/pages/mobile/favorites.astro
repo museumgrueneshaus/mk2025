@@ -1,0 +1,391 @@
+---
+import MobileLayout from '../../layouts/MobileLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get all exhibits for client-side rendering
+const allExhibits = await getCollection('exhibits');
+---
+
+<MobileLayout title="Favoriten - Museum Grünes Haus">
+  <div class="favorites-page">
+    <!-- Header -->
+    <div class="favorites-header">
+      <h1>❤️ Meine Favoriten</h1>
+      <p>Ihre gespeicherten Exponate</p>
+    </div>
+
+    <!-- Favorites List -->
+    <div id="favorites-container" class="favorites-container">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Lade Favoriten...</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-icon">💔</div>
+      <h2>Keine Favoriten</h2>
+      <p>Speichern Sie Exponate, die Sie interessieren, indem Sie auf das Herz-Symbol tippen.</p>
+      <a href="/mobile/exhibits" class="browse-btn">Exponate durchsuchen</a>
+    </div>
+
+    <!-- Export Options -->
+    <div id="export-options" class="export-options" style="display: none;">
+      <button id="share-list" class="export-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        Liste teilen
+      </button>
+      <button id="export-pdf" class="export-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Als PDF exportieren
+      </button>
+    </div>
+  </div>
+</MobileLayout>
+
+<style>
+  .favorites-page {
+    min-height: 100vh;
+    background: white;
+  }
+
+  /* Header */
+  .favorites-header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4444 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .favorites-header h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .favorites-header p {
+    font-size: 16px;
+    opacity: 0.95;
+  }
+
+  /* Favorites Container */
+  .favorites-container {
+    padding: 20px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ff4444;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Exhibit Cards */
+  .favorite-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 15px;
+    text-decoration: none;
+    color: #333;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .favorite-item:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .favorite-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f5f5f5;
+  }
+
+  .favorite-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .favorite-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .favorite-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .favorite-artist {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .favorite-location {
+    font-size: 12px;
+    color: #999;
+    margin-top: auto;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: 1px solid #ff4444;
+    border-radius: 50%;
+    color: #ff4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .remove-btn:active {
+    background: #ff4444;
+    color: white;
+    transform: scale(0.9);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+
+  .empty-state h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+
+  .browse-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* Export Options */
+  .export-options {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+  }
+
+  .export-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .export-btn:active {
+    background: #e8e8e8;
+    transform: scale(0.98);
+  }
+
+  /* Swipe to remove */
+  .favorite-item.removing {
+    animation: slideOut 0.3s ease-out forwards;
+  }
+
+  @keyframes slideOut {
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script define:vars={{ allExhibits }}>
+  // Load favorites from localStorage
+  function loadFavorites() {
+    const container = document.getElementById('favorites-container');
+    const emptyState = document.getElementById('empty-state');
+    const exportOptions = document.getElementById('export-options');
+    
+    const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    if (favoriteIds.length === 0) {
+      if (container) container.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+      if (exportOptions) exportOptions.style.display = 'none';
+      return;
+    }
+    
+    // Filter exhibits that are in favorites
+    const favoriteExhibits = allExhibits.filter(exhibit => 
+      favoriteIds.includes(exhibit.slug)
+    );
+    
+    // Render favorites
+    if (container) {
+      container.innerHTML = favoriteExhibits.map(exhibit => `
+        <div class="favorite-item" data-slug="${exhibit.slug}">
+          <a href="/mobile/exhibit/${exhibit.slug}" class="favorite-link" style="display: flex; flex: 1; gap: 15px; text-decoration: none; color: inherit;">
+            <div class="favorite-image">
+              <img src="${exhibit.data.thumbnail || exhibit.data.image}" alt="${exhibit.data.title}" />
+            </div>
+            <div class="favorite-info">
+              <div class="favorite-title">${exhibit.data.title}</div>
+              <div class="favorite-artist">${exhibit.data.artist}</div>
+              ${exhibit.data.location ? `<div class="favorite-location">📍 ${exhibit.data.location}</div>` : ''}
+            </div>
+          </a>
+          <button class="remove-btn" data-slug="${exhibit.slug}" aria-label="Aus Favoriten entfernen">
+            ×
+          </button>
+        </div>
+      `).join('');
+      
+      // Add remove handlers
+      container.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const slug = (e.currentTarget as HTMLElement).getAttribute('data-slug');
+          if (slug) removeFavorite(slug);
+        });
+      });
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    if (exportOptions) exportOptions.style.display = 'flex';
+  }
+  
+  // Remove favorite
+  function removeFavorite(slug: string) {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const index = favorites.indexOf(slug);
+    
+    if (index > -1) {
+      // Animate removal
+      const item = document.querySelector(`.favorite-item[data-slug="${slug}"]`);
+      if (item) {
+        item.classList.add('removing');
+        
+        setTimeout(() => {
+          // Update localStorage
+          favorites.splice(index, 1);
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+          
+          // Reload list
+          loadFavorites();
+        }, 300);
+      }
+    }
+  }
+  
+  // Share list
+  document.getElementById('share-list')?.addEventListener('click', async () => {
+    const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const favoriteExhibits = allExhibits.filter(exhibit => 
+      favoriteIds.includes(exhibit.slug)
+    );
+    
+    const text = `Meine Favoriten aus dem Museum Grünes Haus:\n\n${
+      favoriteExhibits.map(e => `• ${e.data.title} - ${e.data.artist}`).join('\n')
+    }`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Meine Museums-Favoriten',
+          text: text,
+          url: window.location.origin
+        });
+      } catch (err) {
+        console.log('Share failed:', err);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      await navigator.clipboard.writeText(text);
+      alert('Liste wurde in die Zwischenablage kopiert!');
+    }
+  });
+  
+  // Export as PDF (mock)
+  document.getElementById('export-pdf')?.addEventListener('click', () => {
+    const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const favoriteExhibits = allExhibits.filter(exhibit => 
+      favoriteIds.includes(exhibit.slug)
+    );
+    
+    // In a real app, generate PDF with jsPDF or similar
+    const content = favoriteExhibits.map(e => 
+      `${e.data.title}\n${e.data.artist}\n${e.data.year || ''}\n---`
+    ).join('\n\n');
+    
+    // Mock download
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'museum-favoriten.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    alert('Ihre Favoriten wurden heruntergeladen!');
+  });
+  
+  // Initialize
+  loadFavorites();
+</script>

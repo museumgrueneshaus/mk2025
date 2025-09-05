@@ -1,0 +1,712 @@
+---
+import { getCollection } from 'astro:content';
+
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+
+// Hole alle Events aus Content Collection
+const allEvents = await getCollection('events', ({ data }) => {
+  return data.published && !data.cancelled;
+});
+
+// Sortiere Events nach Datum
+const sortedEvents = allEvents.sort((a, b) => {
+  return new Date(a.data.date).getTime() - new Date(b.data.date).getTime();
+});
+
+// Filtere heutige Events
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const todayEvents = sortedEvents.filter(event => {
+  const eventDate = new Date(event.data.date);
+  eventDate.setHours(0, 0, 0, 0);
+  return eventDate.getTime() === today.getTime();
+});
+
+// Diese Woche
+const weekStart = new Date(today);
+weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Montag
+const weekEnd = new Date(weekStart);
+weekEnd.setDate(weekEnd.getDate() + 6); // Sonntag
+
+const weekEvents = sortedEvents.filter(event => {
+  const eventDate = new Date(event.data.date);
+  return eventDate >= weekStart && eventDate <= weekEnd && eventDate > today;
+});
+
+// Nächste Events (max 10)
+const upcomingEvents = sortedEvents
+  .filter(event => new Date(event.data.date) > today)
+  .slice(0, 10);
+
+// View Mode aus Config
+const viewMode = config.viewMode || 'today'; // today, week, month, list
+
+// Helper Functions
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+}
+
+function formatTime(timeString: string) {
+  return timeString; // Already formatted as "14:00"
+}
+
+function getCategoryIcon(category: string) {
+  const icons = {
+    'führung': '🎭',
+    'workshop': '🎨',
+    'konzert': '🎵',
+    'vortrag': '📚',
+    'special': '🌟'
+  };
+  return icons[category] || '📅';
+}
+
+function getCategoryColor(category: string) {
+  const colors = {
+    'führung': '#4CAF50',
+    'workshop': '#FF9800',
+    'konzert': '#9C27B0',
+    'vortrag': '#2196F3',
+    'special': '#F44336'
+  };
+  return colors[category] || '#757575';
+}
+---
+
+<div class="event-calendar-container">
+  <!-- Header -->
+  <header class="calendar-header">
+    <div class="header-content">
+      <h1 class="calendar-title">
+        {viewMode === 'today' && 'Heute im Museum'}
+        {viewMode === 'week' && 'Diese Woche'}
+        {viewMode === 'month' && 'Veranstaltungen'}
+        {viewMode === 'list' && 'Alle Veranstaltungen'}
+      </h1>
+      <div class="current-date">{formatDate(today)}</div>
+    </div>
+    
+    <!-- View Switcher (optional) -->
+    {config.features?.viewSwitcher && (
+      <div class="view-switcher">
+        <button class="view-btn" data-view="today">Heute</button>
+        <button class="view-btn" data-view="week">Woche</button>
+        <button class="view-btn" data-view="month">Monat</button>
+        <button class="view-btn" data-view="list">Liste</button>
+      </div>
+    )}
+  </header>
+
+  <!-- Main Content -->
+  <main class="calendar-main">
+    
+    <!-- Today View -->
+    {viewMode === 'today' && (
+      <div class="today-view">
+        {todayEvents.length === 0 ? (
+          <div class="no-events">
+            <div class="no-events-icon">📅</div>
+            <p>Heute keine Veranstaltungen</p>
+            <p class="next-event-hint">Nächste Veranstaltung: {upcomingEvents[0]?.data.title || 'Keine geplant'}</p>
+          </div>
+        ) : (
+          <div class="events-timeline">
+            {todayEvents.map(event => (
+              <article class="event-card timeline-event" data-category={event.data.category}>
+                <div class="event-time">
+                  <span class="time-display">{formatTime(event.data.time)}</span>
+                  {event.data.duration && (
+                    <span class="duration">{event.data.duration} Min</span>
+                  )}
+                </div>
+                
+                <div class="event-content">
+                  <div class="event-header">
+                    <span class="category-icon">{getCategoryIcon(event.data.category)}</span>
+                    <h3 class="event-title">{event.data.title}</h3>
+                  </div>
+                  
+                  {event.data.location && (
+                    <p class="event-location">📍 {event.data.location}</p>
+                  )}
+                  
+                  <div class="event-description">
+                    <p>{event.data.description || event.body}</p>
+                  </div>
+                  
+                  {event.data.registration?.required && (
+                    <div class="registration-info">
+                      {event.data.registration.spotsLeft && event.data.registration.spotsLeft > 0 ? (
+                        <span class="spots-available">
+                          👥 Noch {event.data.registration.spotsLeft} Plätze frei
+                        </span>
+                      ) : (
+                        <span class="fully-booked">Ausgebucht</span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {event.data.pricing && !event.data.pricing.free && (
+                    <div class="pricing-info">
+                      💶 {event.data.pricing.regular}€
+                      {event.data.pricing.reduced && ` / ${event.data.pricing.reduced}€ ermäßigt`}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+        
+        <!-- Coming Up Section -->
+        {weekEvents.length > 0 && (
+          <div class="coming-up">
+            <h2>Diese Woche</h2>
+            <div class="week-preview">
+              {weekEvents.slice(0, 5).map(event => {
+                const eventDate = new Date(event.data.date);
+                const dayName = new Intl.DateTimeFormat('de-DE', { weekday: 'short' }).format(eventDate);
+                return (
+                  <div class="week-event">
+                    <span class="week-day">{dayName}</span>
+                    <span class="week-time">{event.data.time}</span>
+                    <span class="week-title">{event.data.title}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Week View -->
+    {viewMode === 'week' && (
+      <div class="week-view">
+        <div class="week-grid">
+          {[...Array(7)].map((_, index) => {
+            const date = new Date(weekStart);
+            date.setDate(date.getDate() + index);
+            const dayEvents = sortedEvents.filter(event => {
+              const eventDate = new Date(event.data.date);
+              eventDate.setHours(0, 0, 0, 0);
+              date.setHours(0, 0, 0, 0);
+              return eventDate.getTime() === date.getTime();
+            });
+            
+            const isToday = date.getTime() === today.getTime();
+            const dayName = new Intl.DateTimeFormat('de-DE', { weekday: 'short' }).format(date);
+            const dayNumber = date.getDate();
+            
+            return (
+              <div class={`week-day-column ${isToday ? 'is-today' : ''}`}>
+                <div class="day-header">
+                  <span class="day-name">{dayName}</span>
+                  <span class="day-number">{dayNumber}</span>
+                </div>
+                <div class="day-events">
+                  {dayEvents.map(event => (
+                    <div class="mini-event" style={`background: ${getCategoryColor(event.data.category)}`}>
+                      <span class="mini-time">{event.data.time}</span>
+                      <span class="mini-title">{event.data.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    <!-- List View -->
+    {viewMode === 'list' && (
+      <div class="list-view">
+        {upcomingEvents.map(event => {
+          const eventDate = new Date(event.data.date);
+          const isNewMonth = upcomingEvents.indexOf(event) === 0 || 
+            new Date(upcomingEvents[upcomingEvents.indexOf(event) - 1].data.date).getMonth() !== eventDate.getMonth();
+          
+          return (
+            <>
+              {isNewMonth && (
+                <h2 class="month-separator">
+                  {new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(eventDate)}
+                </h2>
+              )}
+              <article class="list-event">
+                <div class="list-event-date">
+                  <span class="date-day">{eventDate.getDate()}</span>
+                  <span class="date-month">{new Intl.DateTimeFormat('de-DE', { month: 'short' }).format(eventDate)}</span>
+                </div>
+                <div class="list-event-content">
+                  <h3>{event.data.title}</h3>
+                  <div class="event-meta">
+                    <span>{event.data.time}</span>
+                    <span>{event.data.location}</span>
+                    <span class="category-badge" style={`background: ${getCategoryColor(event.data.category)}`}>
+                      {event.data.category}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </>
+          );
+        })}
+      </div>
+    )}
+  </main>
+
+  <!-- Footer with Opening Hours -->
+  <footer class="calendar-footer">
+    <div class="opening-hours">
+      <h3>Öffnungszeiten</h3>
+      <p>Dienstag bis Samstag: 13:00 - 17:00 Uhr</p>
+      <p>Sonn- und Feiertage: geschlossen</p>
+    </div>
+    {config.features?.qrCode && (
+      <div class="qr-section">
+        <img src="/qr/events.svg" alt="QR Code für Veranstaltungen" />
+        <p>Scannen für Details</p>
+      </div>
+    )}
+  </footer>
+</div>
+
+<style>
+  .event-calendar-container {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .calendar-header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .calendar-title {
+    font-size: 3rem;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .current-date {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    margin-top: 10px;
+  }
+
+  /* View Switcher */
+  .view-switcher {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .view-btn {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .view-btn:hover,
+  .view-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  /* Main Content */
+  .calendar-main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 30px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide Scrollbars */
+  .calendar-main::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .calendar-main {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Today View */
+  .today-view {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .no-events {
+    text-align: center;
+    padding: 60px;
+  }
+
+  .no-events-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+  }
+
+  .no-events p {
+    font-size: 1.5rem;
+    margin: 10px 0;
+  }
+
+  .next-event-hint {
+    opacity: 0.8;
+    font-size: 1.2rem !important;
+  }
+
+  /* Timeline Events */
+  .events-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .timeline-event {
+    display: flex;
+    gap: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .timeline-event:hover {
+    transform: translateX(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .event-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+  }
+
+  .time-display {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .duration {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 5px;
+  }
+
+  .event-content {
+    flex: 1;
+  }
+
+  .event-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  .category-icon {
+    font-size: 2rem;
+  }
+
+  .event-title {
+    font-size: 1.8rem;
+    margin: 0;
+  }
+
+  .event-location {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 10px 0;
+  }
+
+  .event-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    opacity: 0.95;
+    margin: 15px 0;
+  }
+
+  .registration-info,
+  .pricing-info {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    margin: 5px 5px 5px 0;
+    font-size: 1rem;
+  }
+
+  .spots-available {
+    color: #4CAF50;
+  }
+
+  .fully-booked {
+    color: #f44336;
+  }
+
+  /* Coming Up Section */
+  .coming-up {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .coming-up h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+
+  .week-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+  }
+
+  .week-event {
+    display: grid;
+    grid-template-columns: 50px 60px 1fr;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  .week-day {
+    font-weight: bold;
+  }
+
+  .week-time {
+    opacity: 0.8;
+  }
+
+  .week-title {
+    font-size: 1.1rem;
+  }
+
+  /* Week View */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .week-day-column {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .week-day-column.is-today {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .day-header {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .day-name {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .day-number {
+    font-size: 1.5rem;
+  }
+
+  .day-events {
+    padding: 10px;
+    min-height: 200px;
+  }
+
+  .mini-event {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .mini-time {
+    display: block;
+    font-weight: bold;
+  }
+
+  .mini-title {
+    display: block;
+    margin-top: 3px;
+    opacity: 0.95;
+  }
+
+  /* List View */
+  .list-view {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .month-separator {
+    font-size: 1.5rem;
+    margin: 30px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .list-event {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    margin-bottom: 15px;
+  }
+
+  .list-event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    min-width: 80px;
+  }
+
+  .date-day {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .date-month {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+
+  .list-event-content h3 {
+    margin: 0 0 10px;
+    font-size: 1.4rem;
+  }
+
+  .event-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    opacity: 0.9;
+  }
+
+  .category-badge {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+  }
+
+  /* Footer */
+  .calendar-footer {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .opening-hours h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+  }
+
+  .opening-hours p {
+    margin: 5px 0;
+    opacity: 0.9;
+  }
+
+  .qr-section {
+    text-align: center;
+  }
+
+  .qr-section img {
+    width: 100px;
+    height: 100px;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .calendar-title {
+      font-size: 2rem;
+    }
+    
+    .timeline-event {
+      flex-direction: column;
+    }
+    
+    .week-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
+
+<script>
+  // View Switcher
+  const viewButtons = document.querySelectorAll('.view-btn');
+  const container = document.querySelector('.event-calendar-container');
+  
+  viewButtons?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.getAttribute('data-view');
+      // This would need to update the view mode
+      // In production, this would trigger a state change or page reload
+      console.log('Switch to view:', view);
+    });
+  });
+
+  // Auto-refresh every 5 minutes
+  setInterval(() => {
+    window.location.reload();
+  }, 5 * 60 * 1000);
+</script>

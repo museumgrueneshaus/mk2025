@@ -1,0 +1,362 @@
+---
+import MobileLayout from '../../layouts/MobileLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get all published events
+const events = await getCollection('events', ({ data }) => {
+  return data.published && !data.cancelled;
+});
+
+// Sort events by date
+const sortedEvents = events.sort((a, b) => {
+  return new Date(a.data.date).getTime() - new Date(b.data.date).getTime();
+});
+
+// Group events by date
+const eventsByDate = sortedEvents.reduce((acc, event) => {
+  const date = new Date(event.data.date);
+  const dateKey = date.toISOString().split('T')[0];
+  const dateLabel = date.toLocaleDateString('de-DE', { 
+    weekday: 'short', 
+    day: 'numeric', 
+    month: 'long',
+    year: 'numeric'
+  });
+  
+  if (!acc[dateKey]) {
+    acc[dateKey] = {
+      label: dateLabel,
+      events: []
+    };
+  }
+  
+  acc[dateKey].events.push(event);
+  return acc;
+}, {});
+
+// Separate past and upcoming events
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const upcomingDates = Object.keys(eventsByDate)
+  .filter(date => new Date(date) >= today)
+  .sort();
+
+const pastDates = Object.keys(eventsByDate)
+  .filter(date => new Date(date) < today)
+  .sort()
+  .reverse()
+  .slice(0, 5); // Only show last 5 past event dates
+---
+
+<MobileLayout title="Veranstaltungen - Museum Grünes Haus">
+  <div class="events-page">
+    <!-- Header -->
+    <div class="events-header">
+      <h1>Veranstaltungen</h1>
+      <div class="filter-tabs">
+        <button class="tab active" data-filter="upcoming">Kommende</button>
+        <button class="tab" data-filter="past">Vergangene</button>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="events-list" id="upcoming">
+      {upcomingDates.length > 0 ? (
+        upcomingDates.map(dateKey => (
+          <div class="event-date-group">
+            <div class="date-header">
+              <span class="date-label">{eventsByDate[dateKey].label}</span>
+            </div>
+            {eventsByDate[dateKey].events.map(event => (
+              <a href={`/mobile/event/${event.slug}`} class="event-card">
+                {event.data.image && (
+                  <div class="event-image">
+                    <img src={event.data.image} alt={event.data.title} />
+                    {event.data.cancelled && (
+                      <div class="event-badge cancelled">Abgesagt</div>
+                    )}
+                    {event.data.soldOut && (
+                      <div class="event-badge soldout">Ausverkauft</div>
+                    )}
+                  </div>
+                )}
+                <div class="event-content">
+                  <div class="event-time">{event.data.time}</div>
+                  <h3 class="event-title">{event.data.title}</h3>
+                  {event.data.subtitle && (
+                    <p class="event-subtitle">{event.data.subtitle}</p>
+                  )}
+                  <div class="event-meta">
+                    <span class="event-location">📍 {event.data.location}</span>
+                    {event.data.price && (
+                      <span class="event-price">€{event.data.price}</span>
+                    )}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        ))
+      ) : (
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <p>Keine kommenden Veranstaltungen</p>
+        </div>
+      )}
+    </div>
+
+    <!-- Past Events -->
+    <div class="events-list" id="past" style="display: none;">
+      {pastDates.length > 0 ? (
+        pastDates.map(dateKey => (
+          <div class="event-date-group">
+            <div class="date-header">
+              <span class="date-label">{eventsByDate[dateKey].label}</span>
+            </div>
+            {eventsByDate[dateKey].events.map(event => (
+              <a href={`/mobile/event/${event.slug}`} class="event-card past">
+                {event.data.image && (
+                  <div class="event-image">
+                    <img src={event.data.image} alt={event.data.title} />
+                  </div>
+                )}
+                <div class="event-content">
+                  <div class="event-time">{event.data.time}</div>
+                  <h3 class="event-title">{event.data.title}</h3>
+                  {event.data.subtitle && (
+                    <p class="event-subtitle">{event.data.subtitle}</p>
+                  )}
+                  <div class="event-meta">
+                    <span class="event-location">📍 {event.data.location}</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        ))
+      ) : (
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <p>Keine vergangenen Veranstaltungen</p>
+        </div>
+      )}
+    </div>
+  </div>
+</MobileLayout>
+
+<style>
+  .events-page {
+    min-height: 100vh;
+    background: white;
+  }
+
+  /* Header */
+  .events-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    padding-bottom: 60px;
+  }
+
+  .events-header h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .filter-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s;
+  }
+
+  .tab.active {
+    background: white;
+    color: #764ba2;
+    font-weight: 500;
+  }
+
+  /* Events List */
+  .events-list {
+    margin-top: -30px;
+    padding: 0 20px 20px;
+  }
+
+  .event-date-group {
+    margin-bottom: 30px;
+  }
+
+  .date-header {
+    background: white;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .date-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Event Card */
+  .event-card {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: #333;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+
+  .event-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .event-card.past {
+    opacity: 0.7;
+  }
+
+  .event-image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f5f5f5;
+  }
+
+  .event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .event-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .event-badge.cancelled {
+    background: #ff4444;
+    color: white;
+  }
+
+  .event-badge.soldout {
+    background: #ff9800;
+    color: white;
+  }
+
+  .event-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .event-time {
+    font-size: 14px;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 4px;
+  }
+
+  .event-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .event-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .event-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .event-price {
+    margin-left: auto;
+    color: #4CAF50;
+    font-weight: 600;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .empty-state p {
+    font-size: 16px;
+    color: #999;
+  }
+</style>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const lists = {
+    upcoming: document.getElementById('upcoming'),
+    past: document.getElementById('past')
+  };
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const filter = tab.dataset.filter;
+      
+      // Update active tab
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      // Show/hide lists
+      Object.keys(lists).forEach(key => {
+        if (lists[key]) {
+          lists[key].style.display = key === filter ? 'block' : 'none';
+        }
+      });
+    });
+  });
+</script>

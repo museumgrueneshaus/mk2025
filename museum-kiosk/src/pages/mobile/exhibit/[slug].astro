@@ -1,0 +1,479 @@
+---
+import { getCollection } from 'astro:content';
+import MobileLayout from '../../../layouts/MobileLayout.astro';
+
+export async function getStaticPaths() {
+  const exhibits = await getCollection('exhibits');
+  return exhibits.map(exhibit => ({
+    params: { slug: exhibit.slug },
+    props: { exhibit }
+  }));
+}
+
+const { exhibit } = Astro.props;
+const { Content } = await exhibit.render();
+
+// Get related persons
+const persons = await getCollection('persons');
+const relatedPersons = persons.filter(person => 
+  exhibit.data.relatedPersons?.includes(person.slug)
+);
+---
+
+<MobileLayout title={`${exhibit.data.title} - Museum Grünes Haus`}>
+  <article class="exhibit-detail">
+    <!-- Hero Image -->
+    <div class="exhibit-hero">
+      <img src={exhibit.data.image} alt={exhibit.data.title} />
+      <button class="favorite-btn" id="favorite-btn" aria-label="Zu Favoriten hinzufügen">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+      <button class="share-btn" id="share-btn" aria-label="Teilen">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Main Info -->
+    <div class="exhibit-header">
+      <h1>{exhibit.data.title}</h1>
+      <p class="artist">{exhibit.data.artist}</p>
+      <p class="year">{exhibit.data.year}</p>
+    </div>
+
+    <!-- Quick Facts -->
+    <div class="quick-facts">
+      {exhibit.data.technique && (
+        <div class="fact">
+          <span class="fact-label">Technik</span>
+          <span class="fact-value">{exhibit.data.technique}</span>
+        </div>
+      )}
+      {exhibit.data.dimensions && (
+        <div class="fact">
+          <span class="fact-label">Maße</span>
+          <span class="fact-value">{exhibit.data.dimensions}</span>
+        </div>
+      )}
+      {exhibit.data.location && (
+        <div class="fact">
+          <span class="fact-label">Standort</span>
+          <span class="fact-value">{exhibit.data.location}</span>
+        </div>
+      )}
+    </div>
+
+    <!-- Audio Guide -->
+    {exhibit.data.audioGuide && (
+      <div class="audio-guide">
+        <h2>🎧 Audio-Guide</h2>
+        <audio controls src={exhibit.data.audioGuide} preload="none">
+          Ihr Browser unterstützt kein Audio.
+        </audio>
+      </div>
+    )}
+
+    <!-- Description -->
+    <div class="exhibit-content">
+      <Content />
+    </div>
+
+    <!-- Related Persons -->
+    {relatedPersons.length > 0 && (
+      <div class="related-section">
+        <h2>Über den Künstler</h2>
+        {relatedPersons.map(person => (
+          <a href={`/mobile/person/${person.slug}`} class="related-card">
+            <div class="related-image">
+              {person.data.portrait && (
+                <img src={person.data.portrait} alt={person.data.name} />
+              )}
+            </div>
+            <div class="related-info">
+              <h3>{person.data.name}</h3>
+              <p>{person.data.lifespan}</p>
+              <p class="related-link">Mehr erfahren →</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- Tags -->
+    {exhibit.data.tags && exhibit.data.tags.length > 0 && (
+      <div class="tags">
+        {exhibit.data.tags.map(tag => (
+          <span class="tag">#{tag}</span>
+        ))}
+      </div>
+    )}
+
+    <!-- Related Exhibits -->
+    <div class="more-section">
+      <h2>Weitere Exponate entdecken</h2>
+      <div class="more-grid">
+        <a href="/mobile/exhibits" class="more-btn">
+          <span class="more-icon">🖼️</span>
+          <span>Alle Exponate</span>
+        </a>
+        <a href="/mobile/scan" class="more-btn">
+          <span class="more-icon">📷</span>
+          <span>QR Scanner</span>
+        </a>
+      </div>
+    </div>
+  </article>
+</MobileLayout>
+
+<style>
+  .exhibit-detail {
+    background: white;
+    min-height: 100vh;
+  }
+
+  /* Hero Image */
+  .exhibit-hero {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    max-height: 500px;
+    background: #f0f0f0;
+  }
+
+  .exhibit-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: white;
+  }
+
+  .favorite-btn,
+  .share-btn {
+    position: absolute;
+    top: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+  }
+
+  .favorite-btn {
+    right: 20px;
+  }
+
+  .share-btn {
+    right: 74px;
+  }
+
+  .favorite-btn:active,
+  .share-btn:active {
+    transform: scale(0.9);
+  }
+
+  .favorite-btn.active {
+    background: #ff4444;
+    color: white;
+  }
+
+  .favorite-btn.active svg {
+    fill: currentColor;
+  }
+
+  /* Header */
+  .exhibit-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .exhibit-header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .artist {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .year {
+    font-size: 16px;
+    color: #999;
+  }
+
+  /* Quick Facts */
+  .quick-facts {
+    padding: 20px;
+    background: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fact-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .fact-value {
+    font-size: 14px;
+    color: #333;
+    text-align: right;
+  }
+
+  /* Audio Guide */
+  .audio-guide {
+    padding: 20px;
+    background: #e8f5e9;
+  }
+
+  .audio-guide h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .audio-guide audio {
+    width: 100%;
+    height: 48px;
+  }
+
+  /* Content */
+  .exhibit-content {
+    padding: 20px;
+    line-height: 1.6;
+    color: #444;
+  }
+
+  .exhibit-content :global(h2) {
+    font-size: 20px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .exhibit-content :global(h3) {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .exhibit-content :global(p) {
+    margin-bottom: 16px;
+  }
+
+  .exhibit-content :global(ul),
+  .exhibit-content :global(ol) {
+    margin: 16px 0;
+    padding-left: 24px;
+  }
+
+  .exhibit-content :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .exhibit-content :global(strong) {
+    color: #333;
+  }
+
+  .exhibit-content :global(em) {
+    font-style: italic;
+  }
+
+  .exhibit-content :global(blockquote) {
+    margin: 20px 0;
+    padding: 12px 20px;
+    border-left: 4px solid #4CAF50;
+    background: #f5f5f5;
+    font-style: italic;
+  }
+
+  /* Related Section */
+  .related-section {
+    padding: 20px;
+    background: #f8f8f8;
+  }
+
+  .related-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .related-card {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+  }
+
+  .related-card:active {
+    background: #f5f5f5;
+  }
+
+  .related-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e0e0e0;
+    flex-shrink: 0;
+  }
+
+  .related-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .related-info {
+    flex: 1;
+  }
+
+  .related-info h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .related-info p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .related-link {
+    color: #4CAF50 !important;
+    font-size: 13px !important;
+  }
+
+  /* Tags */
+  .tags {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    padding: 6px 12px;
+    background: #e8f5e9;
+    color: #4CAF50;
+    border-radius: 16px;
+    font-size: 13px;
+  }
+
+  /* More Section */
+  .more-section {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+
+  .more-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .more-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .more-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+  }
+
+  .more-btn:active {
+    background: #e8e8e8;
+  }
+
+  .more-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .more-btn span:last-child {
+    font-size: 14px;
+  }
+</style>
+
+<script define:vars={{ exhibitId: exhibit.slug }}>
+  // Favorites functionality
+  const favoriteBtn = document.getElementById('favorite-btn');
+  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const isFavorite = favorites.includes(exhibitId);
+  
+  if (isFavorite) {
+    favoriteBtn?.classList.add('active');
+  }
+  
+  favoriteBtn?.addEventListener('click', () => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const index = favorites.indexOf(exhibitId);
+    
+    if (index > -1) {
+      favorites.splice(index, 1);
+      favoriteBtn.classList.remove('active');
+    } else {
+      favorites.push(exhibitId);
+      favoriteBtn.classList.add('active');
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  });
+  
+  // Share functionality
+  const shareBtn = document.getElementById('share-btn');
+  shareBtn?.addEventListener('click', async () => {
+    const shareData = {
+      title: document.title,
+      text: 'Entdecken Sie dieses Exponat im Museum Grünes Haus',
+      url: window.location.href
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link kopiert!');
+      }
+    } catch (err) {
+      console.log('Share failed:', err);
+    }
+  });
+</script>

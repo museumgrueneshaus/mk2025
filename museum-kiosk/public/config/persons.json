@@ -1,0 +1,86 @@
+{
+  "persons": [
+    {
+      "id": "PER001",
+      "name": "Leonardo da Vinci",
+      "lifespan": "1452-1519",
+      "category": "artist",
+      "nationality": "Italienisch",
+      "profession": "Maler, Bildhauer, Architekt, Naturforscher",
+      "image": "/media/images/leonardo-portrait.jpg",
+      "thumbnail": "/media/images/leonardo-thumb.jpg",
+      "biography": "Leonardo da Vinci war ein italienischer Maler, Bildhauer, Architekt, Anatom, Mechaniker, Ingenieur und Naturphilosoph. Er gilt als einer der berühmtesten Universalgelehrten aller Zeiten.",
+      "achievements": [
+        "Mona Lisa (1503-1506)",
+        "Das Abendmahl (1495-1498)",
+        "Vitruvianischer Mensch (1490)",
+        "Zahlreiche wissenschaftliche Studien"
+      ],
+      "related_exhibits": ["EXP001"],
+      "tags": ["renaissance", "universalgelehrter", "maler", "erfinder"]
+    },
+    {
+      "id": "PER002",
+      "name": "Rembrandt van Rijn",
+      "lifespan": "1606-1669",
+      "category": "artist",
+      "nationality": "Niederländisch",
+      "profession": "Maler, Grafiker",
+      "image": "/media/images/rembrandt-portrait.jpg",
+      "thumbnail": "/media/images/rembrandt-thumb.jpg",
+      "biography": "Rembrandt Harmenszoon van Rijn gilt als einer der bedeutendsten und bekanntesten niederländischen Künstler des Barocks. Sein Schaffen fiel in die Epoche des Goldenen Zeitalters.",
+      "achievements": [
+        "Die Nachtwache (1642)",
+        "Die Anatomie des Dr. Tulp (1632)",
+        "Über 300 Gemälde",
+        "Über 300 Radierungen"
+      ],
+      "related_exhibits": ["EXP002"],
+      "tags": ["barock", "goldenes-zeitalter", "maler", "niederlande"]
+    },
+    {
+      "id": "PER003",
+      "name": "Edvard Munch",
+      "lifespan": "1863-1944",
+      "category": "artist",
+      "nationality": "Norwegisch",
+      "profession": "Maler, Grafiker",
+      "image": "/media/images/munch-portrait.jpg",
+      "thumbnail": "/media/images/munch-thumb.jpg",
+      "biography": "Edvard Munch war ein norwegischer Maler und Grafiker. Seine Werke werden dem Symbolismus zugeordnet und gelten als wegbereitend für die expressionistische Richtung in der Malerei.",
+      "achievements": [
+        "Der Schrei (1893)",
+        "Madonna (1894)",
+        "Der Kuss (1897)",
+        "Über 1000 Gemälde"
+      ],
+      "related_exhibits": ["EXP003"],
+      "tags": ["expressionismus", "symbolismus", "maler", "norwegen"]
+    },
+    {
+      "id": "PER004",
+      "name": "Vincent van Gogh",
+      "lifespan": "1853-1890",
+      "category": "artist",
+      "nationality": "Niederländisch",
+      "profession": "Maler",
+      "image": "/media/images/vangogh-portrait.jpg",
+      "thumbnail": "/media/images/vangogh-thumb.jpg",
+      "biography": "Vincent Willem van Gogh war ein niederländischer Maler und Zeichner. Er gilt als einer der Begründer der modernen Malerei.",
+      "achievements": [
+        "Die Sternennacht (1889)",
+        "Sonnenblumen (1888)",
+        "Selbstportraits",
+        "Über 900 Gemälde in 10 Jahren"
+      ],
+      "related_exhibits": [],
+      "tags": ["postimpressionismus", "modern", "maler", "niederlande"]
+    }
+  ],
+  "categories": [
+    { "id": "artist", "name": "Künstler", "count": 4 },
+    { "id": "curator", "name": "Kuratoren", "count": 0 },
+    { "id": "collector", "name": "Sammler", "count": 0 },
+    { "id": "patron", "name": "Mäzene", "count": 0 }
+  ]
+}

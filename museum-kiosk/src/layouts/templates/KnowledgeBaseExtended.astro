@@ -1,0 +1,948 @@
+---
+export interface Props {
+  config: any;
+}
+
+const { config } = Astro.props;
+
+// Load all data
+const exhibitsResponse = await fetch(new URL('/config/exhibits.json', Astro.url));
+const personsResponse = await fetch(new URL('/config/persons.json', Astro.url));
+const documentsResponse = await fetch(new URL('/config/documents.json', Astro.url));
+
+const exhibitsData = await exhibitsResponse.json();
+const personsData = await personsResponse.json();
+const documentsData = await documentsResponse.json();
+
+const exhibits = exhibitsData.exhibits || [];
+const persons = personsData.persons || [];
+const documents = documentsData.documents || [];
+---
+
+<div class="knowledge-base-container">
+  <!-- Header with Category Tabs -->
+  <header class="kb-header">
+    <div class="kb-header-content">
+      <h1 class="kb-title">Digitale Wissensdatenbank</h1>
+      
+      <!-- Main Category Tabs -->
+      <div class="category-tabs">
+        <button class="category-tab active" data-section="exhibits">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 7h14v2H5zm0 4h14v2H5zm0 4h10v2H5z"/>
+          </svg>
+          <span>Exponate</span>
+          <span class="tab-count">{exhibits.length}</span>
+        </button>
+        
+        <button class="category-tab" data-section="persons">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span>Personen</span>
+          <span class="tab-count">{persons.length}</span>
+        </button>
+        
+        <button class="category-tab" data-section="documents">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+          <span>Dokumente</span>
+          <span class="tab-count">{documents.length}</span>
+        </button>
+      </div>
+      
+      <!-- Search Bar -->
+      <div class="kb-controls">
+        <div class="search-container">
+          <input 
+            type="text" 
+            id="search-input" 
+            class="search-input"
+            placeholder="Suchen..."
+          />
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="kb-main">
+    <!-- Exhibits Section -->
+    <div id="exhibits-section" class="content-section active">
+      <div class="section-filters">
+        <button class="filter-btn active" data-filter="all">Alle</button>
+        {exhibitsData.categories?.map((cat: any) => (
+          <button class="filter-btn" data-filter={cat.id}>
+            {cat.name} ({cat.count})
+          </button>
+        ))}
+      </div>
+      
+      <div class="items-grid">
+        {exhibits.map((exhibit: any) => (
+          <article class="item-card exhibit-card" data-id={exhibit.id} data-filter={exhibit.category} 
+                   data-searchable={`${exhibit.title} ${exhibit.artist} ${exhibit.tags?.join(' ')}`}>
+            <div class="item-image-container">
+              <img src={exhibit.thumbnail || exhibit.image} alt={exhibit.title} loading="lazy" />
+              <div class="item-overlay">
+                <button class="view-detail-btn" data-type="exhibit" data-id={exhibit.id}>
+                  Details anzeigen
+                </button>
+              </div>
+            </div>
+            <div class="item-info">
+              <h3 class="item-title">{exhibit.title}</h3>
+              <p class="item-subtitle">{exhibit.artist}</p>
+              <p class="item-meta">{exhibit.year}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Persons Section -->
+    <div id="persons-section" class="content-section">
+      <div class="section-filters">
+        <button class="filter-btn active" data-filter="all">Alle</button>
+        {personsData.categories?.map((cat: any) => (
+          <button class="filter-btn" data-filter={cat.id}>
+            {cat.name} ({cat.count})
+          </button>
+        ))}
+      </div>
+      
+      <div class="items-grid">
+        {persons.map((person: any) => (
+          <article class="item-card person-card" data-id={person.id} data-filter={person.category}
+                   data-searchable={`${person.name} ${person.profession} ${person.tags?.join(' ')}`}>
+            <div class="item-image-container">
+              <img src={person.thumbnail || person.image || '/media/images/person-placeholder.jpg'} alt={person.name} loading="lazy" />
+              <div class="item-overlay">
+                <button class="view-detail-btn" data-type="person" data-id={person.id}>
+                  Details anzeigen
+                </button>
+              </div>
+            </div>
+            <div class="item-info">
+              <h3 class="item-title">{person.name}</h3>
+              <p class="item-subtitle">{person.lifespan}</p>
+              <p class="item-meta">{person.profession}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div id="documents-section" class="content-section">
+      <div class="section-filters">
+        <button class="filter-btn active" data-filter="all">Alle</button>
+        {documentsData.categories?.map((cat: any) => (
+          <button class="filter-btn" data-filter={cat.id}>
+            {cat.name} ({cat.count})
+          </button>
+        ))}
+      </div>
+      
+      <div class="items-grid documents-grid">
+        {documents.map((doc: any) => (
+          <article class="item-card document-card" data-id={doc.id} data-filter={doc.category}
+                   data-searchable={`${doc.title} ${doc.author} ${doc.tags?.join(' ')}`}>
+            <div class="doc-card-content">
+              <div class="doc-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+              </div>
+              <div class="doc-info">
+                <h3 class="doc-title">{doc.title}</h3>
+                <p class="doc-author">{doc.author}</p>
+                <p class="doc-meta">{doc.year} • {doc.pages} Seiten • {doc.language}</p>
+                <p class="doc-abstract">{doc.abstract}</p>
+                <button class="view-detail-btn doc-btn" data-type="document" data-id={doc.id}>
+                  Dokument ansehen
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Detail View Modal -->
+    <div id="detail-modal" class="detail-modal" style="display: none;">
+      <div class="modal-content">
+        <button class="modal-close">×</button>
+        <div id="modal-body" class="modal-body">
+          <!-- Content will be dynamically inserted -->
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .knowledge-base-container {
+    width: 100vw;
+    height: 100vh;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .kb-header {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+  }
+
+  .kb-header-content {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .kb-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  /* Category Tabs */
+  .category-tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0;
+  }
+
+  .category-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+    position: relative;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .category-tab:hover {
+    color: #333;
+    background: #f9f9f9;
+  }
+
+  .category-tab.active {
+    color: #4CAF50;
+    border-bottom-color: #4CAF50;
+  }
+
+  .tab-count {
+    background: #e8e8e8;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  .category-tab.active .tab-count {
+    background: #e8f5e9;
+    color: #4CAF50;
+  }
+
+  /* Search */
+  .kb-controls {
+    max-width: 600px;
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    transition: border-color 0.3s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+  }
+
+  /* Main Content */
+  .kb-main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+  
+  /* Hide scrollbars */
+  .kb-main::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .kb-main {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Content Sections */
+  .content-section {
+    display: none;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .content-section.active {
+    display: block;
+  }
+
+  /* Filters */
+  .section-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+
+  .filter-btn:hover {
+    border-color: #4CAF50;
+  }
+
+  .filter-btn.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+
+  /* Grid */
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .documents-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+
+  /* Cards */
+  .item-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+
+  .item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .item-card.hidden {
+    display: none;
+  }
+
+  .item-image-container {
+    position: relative;
+    padding-bottom: 75%;
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+
+  .item-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .item-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .item-card:hover .item-overlay {
+    opacity: 1;
+  }
+
+  .view-detail-btn {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+
+  .view-detail-btn:hover {
+    background: #45a049;
+  }
+
+  .item-info {
+    padding: 15px;
+  }
+
+  .item-title {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .item-subtitle {
+    color: #666;
+    margin-bottom: 3px;
+  }
+
+  .item-meta {
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  /* Document Cards */
+  .document-card {
+    cursor: default;
+  }
+
+  .doc-card-content {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .doc-icon {
+    flex-shrink: 0;
+    color: #666;
+  }
+
+  .doc-info {
+    flex: 1;
+  }
+
+  .doc-title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .doc-author {
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  .doc-meta {
+    color: #999;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .doc-abstract {
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+  }
+
+  .doc-btn {
+    position: static;
+    opacity: 1;
+  }
+
+  /* Modal */
+  .detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 8px;
+    max-width: 1200px;
+    max-height: 90vh;
+    width: 100%;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 36px;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s;
+  }
+
+  .modal-close:hover {
+    background: #f0f0f0;
+  }
+
+  .modal-body {
+    padding: 40px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .category-tabs {
+      flex-wrap: wrap;
+    }
+    
+    .items-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .documents-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .doc-card-content {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script define:vars={{ exhibits, persons, documents }}>
+  // State
+  let currentSection = 'exhibits';
+  let currentFilter = 'all';
+  let searchTerm = '';
+
+  // Elements
+  const categoryTabs = document.querySelectorAll('.category-tab');
+  const contentSections = document.querySelectorAll('.content-section');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const modal = document.getElementById('detail-modal');
+  const modalBody = document.getElementById('modal-body');
+  const modalClose = document.querySelector('.modal-close');
+
+  // Tab switching
+  categoryTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const section = tab.getAttribute('data-section');
+      if (section) {
+        // Update active tab
+        categoryTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update active section
+        contentSections.forEach(s => s.classList.remove('active'));
+        document.getElementById(`${section}-section`)?.classList.add('active');
+        
+        currentSection = section;
+        currentFilter = 'all';
+        
+        // Reset filters
+        const sectionElement = document.getElementById(`${section}-section`);
+        if (sectionElement) {
+          const filterBtns = sectionElement.querySelectorAll('.filter-btn');
+          filterBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-filter') === 'all');
+          });
+        }
+        
+        applyFilters();
+      }
+    });
+  });
+
+  // Filter handling
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('filter-btn')) {
+      const filter = target.getAttribute('data-filter');
+      if (filter) {
+        currentFilter = filter;
+        
+        // Update active filter
+        const parent = target.parentElement;
+        if (parent) {
+          parent.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn === target);
+          });
+        }
+        
+        applyFilters();
+      }
+    }
+  });
+
+  // Search handling
+  searchInput?.addEventListener('input', () => {
+    searchTerm = searchInput.value.toLowerCase();
+    applyFilters();
+  });
+
+  // Apply filters and search
+  function applyFilters() {
+    const sectionElement = document.getElementById(`${currentSection}-section`);
+    if (!sectionElement) return;
+    
+    const cards = sectionElement.querySelectorAll('.item-card');
+    cards.forEach(card => {
+      const cardElement = card as HTMLElement;
+      const filterMatch = currentFilter === 'all' || cardElement.getAttribute('data-filter') === currentFilter;
+      const searchMatch = searchTerm === '' || 
+        (cardElement.getAttribute('data-searchable')?.toLowerCase().includes(searchTerm) ?? false);
+      
+      cardElement.classList.toggle('hidden', !(filterMatch && searchMatch));
+    });
+  }
+
+  // Detail view handling
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('view-detail-btn')) {
+      e.stopPropagation();
+      const type = target.getAttribute('data-type');
+      const id = target.getAttribute('data-id');
+      if (type && id) {
+        showDetail(type, id);
+      }
+    }
+  });
+
+  // Show detail modal
+  function showDetail(type: string, id: string) {
+    let item: any = null;
+    let content = '';
+    
+    if (type === 'exhibit') {
+      item = exhibits.find((e: any) => e.id === id);
+      if (item) {
+        content = `
+          <div class="detail-exhibit">
+            <div class="detail-grid">
+              <div class="detail-image">
+                <img src="${item.image}" alt="${item.title}" />
+              </div>
+              <div class="detail-info">
+                <h1>${item.title}</h1>
+                <p class="detail-artist">${item.artist}</p>
+                <p class="detail-year">${item.year}</p>
+                
+                <dl class="detail-meta">
+                  <dt>Technik:</dt>
+                  <dd>${item.technique || '-'}</dd>
+                  <dt>Maße:</dt>
+                  <dd>${item.dimensions || '-'}</dd>
+                  <dt>Standort:</dt>
+                  <dd>${item.location || '-'}</dd>
+                </dl>
+                
+                <p class="detail-description">${item.description || ''}</p>
+                
+                ${item.tags ? `
+                  <div class="detail-tags">
+                    ${item.tags.map((tag: string) => `<span class="tag">${tag}</span>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    } else if (type === 'person') {
+      item = persons.find((p: any) => p.id === id);
+      if (item) {
+        content = `
+          <div class="detail-person">
+            <div class="detail-grid">
+              <div class="detail-image">
+                <img src="${item.image || '/media/images/person-placeholder.jpg'}" alt="${item.name}" />
+              </div>
+              <div class="detail-info">
+                <h1>${item.name}</h1>
+                <p class="detail-lifespan">${item.lifespan}</p>
+                <p class="detail-profession">${item.profession}</p>
+                <p class="detail-nationality">${item.nationality}</p>
+                
+                <div class="detail-biography">
+                  <h3>Biografie</h3>
+                  <p>${item.biography}</p>
+                </div>
+                
+                ${item.achievements ? `
+                  <div class="detail-achievements">
+                    <h3>Wichtige Werke</h3>
+                    <ul>
+                      ${item.achievements.map((a: string) => `<li>${a}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+                
+                ${item.tags ? `
+                  <div class="detail-tags">
+                    ${item.tags.map((tag: string) => `<span class="tag">${tag}</span>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    } else if (type === 'document') {
+      item = documents.find((d: any) => d.id === id);
+      if (item) {
+        content = `
+          <div class="detail-document">
+            <h1>${item.title}</h1>
+            <p class="detail-author">Von ${item.author}</p>
+            <p class="detail-meta">${item.year} • ${item.pages} Seiten • ${item.language}</p>
+            
+            <div class="detail-abstract">
+              <h3>Zusammenfassung</h3>
+              <p>${item.abstract}</p>
+            </div>
+            
+            ${item.pdf_path ? `
+              <div class="detail-actions">
+                <a href="${item.pdf_path}" target="_blank" class="pdf-link">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                  </svg>
+                  PDF öffnen
+                </a>
+              </div>
+            ` : ''}
+            
+            ${item.tags ? `
+              <div class="detail-tags">
+                ${item.tags.map((tag: string) => `<span class="tag">${tag}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+    }
+    
+    if (modalBody && content) {
+      modalBody.innerHTML = content;
+      if (modal) modal.style.display = 'flex';
+    }
+  }
+
+  // Close modal
+  modalClose?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.style.display === 'flex') {
+      modal.style.display = 'none';
+    }
+  });
+</script>
+
+<style>
+  /* Modal content styles */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .detail-image img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .detail-info h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .detail-artist,
+  .detail-lifespan {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  .detail-year,
+  .detail-profession {
+    font-size: 1.2rem;
+    color: #999;
+    margin-bottom: 20px;
+  }
+
+  .detail-nationality {
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  .detail-meta {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+  }
+
+  .detail-meta dt {
+    font-weight: bold;
+    color: #666;
+  }
+
+  .detail-meta dd {
+    color: #333;
+    margin: 0;
+  }
+
+  .detail-description,
+  .detail-biography,
+  .detail-abstract {
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 30px;
+  }
+
+  .detail-biography h3,
+  .detail-achievements h3,
+  .detail-abstract h3 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .detail-achievements ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .detail-achievements li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .detail-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .tag {
+    padding: 5px 15px;
+    background: #e8f5e9;
+    color: #4CAF50;
+    border-radius: 15px;
+    font-size: 0.9rem;
+  }
+
+  .detail-document h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .detail-author {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .detail-actions {
+    margin: 30px 0;
+  }
+
+  .pdf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+
+  .pdf-link:hover {
+    background: #45a049;
+  }
+
+  @media (max-width: 768px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,3 @@
+# Empty submodule configuration
+# These directories are not actual submodules, just local folders
+# This file exists to prevent Netlify build errors

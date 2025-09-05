@@ -1,6 +1,25 @@
 {
+  "pi_01": {
+    "name": "Eingang - Veranstaltungen",
+    "layout": "event-calendar",
+    "content": {
+      "viewMode": "today"
+    },
+    "features": {
+      "viewSwitcher": false,
+      "qrCode": true
+    },
+    "settings": {
+      "language": "de"
+    },
+    "idle": {
+      "showInstructions": 60,
+      "backToStart": 180
+    },
+    "lastUpdated": "2025-09-05T10:00:00.000Z"
+  },
   "aa-bb-cc-dd-ee-01": {
-    "name": "Eingang",
+    "name": "Test - PDF Viewer",
     "layout": "pdf-viewer",
     "content": {
       "pdfs": [
@@ -45,10 +64,12 @@
     }
   },
   "aa-bb-cc-dd-ee-03": {
-    "name": "Ausstellung Digital",
-    "layout": "knowledge-base",
+    "name": "Wissensdatenbank",
+    "layout": "knowledge-base-extended",
     "content": {
-      "exhibitsPath": "/config/exhibits.json"
+      "exhibitsPath": "/config/exhibits.json",
+      "personsPath": "/config/persons.json",
+      "documentsPath": "/config/documents.json"
     },
     "features": {
       "search": true,

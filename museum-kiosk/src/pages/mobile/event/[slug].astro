@@ -1,0 +1,493 @@
+---
+import { getCollection } from 'astro:content';
+import MobileLayout from '../../../layouts/MobileLayout.astro';
+
+export async function getStaticPaths() {
+  const events = await getCollection('events');
+  return events.map(event => ({
+    params: { slug: event.slug },
+    props: { event }
+  }));
+}
+
+const { event } = Astro.props;
+const { Content } = await event.render();
+
+// Format date
+const eventDate = new Date(event.data.date);
+const formattedDate = eventDate.toLocaleDateString('de-DE', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+});
+---
+
+<MobileLayout title={`${event.data.title} - Museum Grünes Haus`}>
+  <article class="event-detail">
+    <!-- Hero Image -->
+    {event.data.image && (
+      <div class="event-hero">
+        <img src={event.data.image} alt={event.data.title} />
+        {event.data.cancelled && (
+          <div class="status-badge cancelled">Abgesagt</div>
+        )}
+        {event.data.soldOut && (
+          <div class="status-badge soldout">Ausverkauft</div>
+        )}
+      </div>
+    )}
+
+    <!-- Main Info -->
+    <div class="event-header">
+      <h1>{event.data.title}</h1>
+      {event.data.subtitle && (
+        <p class="subtitle">{event.data.subtitle}</p>
+      )}
+    </div>
+
+    <!-- Quick Info -->
+    <div class="quick-info">
+      <div class="info-item">
+        <span class="info-icon">📅</span>
+        <div class="info-content">
+          <span class="info-label">Datum</span>
+          <span class="info-value">{formattedDate}</span>
+        </div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-icon">🕐</span>
+        <div class="info-content">
+          <span class="info-label">Uhrzeit</span>
+          <span class="info-value">{event.data.time}</span>
+        </div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-icon">📍</span>
+        <div class="info-content">
+          <span class="info-label">Ort</span>
+          <span class="info-value">{event.data.location}</span>
+        </div>
+      </div>
+      
+      {event.data.price && (
+        <div class="info-item">
+          <span class="info-icon">💶</span>
+          <div class="info-content">
+            <span class="info-label">Preis</span>
+            <span class="info-value">€{event.data.price}</span>
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Description -->
+    <div class="event-content">
+      <Content />
+    </div>
+
+    <!-- Speaker/Performer Info -->
+    {event.data.speaker && (
+      <div class="speaker-section">
+        <h2>Referent</h2>
+        <div class="speaker-card">
+          {event.data.speakerImage && (
+            <img src={event.data.speakerImage} alt={event.data.speaker} />
+          )}
+          <div class="speaker-info">
+            <h3>{event.data.speaker}</h3>
+            {event.data.speakerBio && (
+              <p>{event.data.speakerBio}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Registration -->
+    {event.data.registration && !event.data.cancelled && !event.data.soldOut && (
+      <div class="registration-section">
+        <h2>Anmeldung</h2>
+        <p>{event.data.registrationInfo || 'Anmeldung erforderlich'}</p>
+        <div class="registration-buttons">
+          <a href={`tel:${event.data.registrationPhone || '+4356727230'}`} class="register-btn phone">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            Telefonisch anmelden
+          </a>
+          <a href={`mailto:${event.data.registrationEmail || 'info@museum-reutte.at'}?subject=Anmeldung: ${event.data.title}`} class="register-btn email">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            Per E-Mail anmelden
+          </a>
+        </div>
+      </div>
+    )}
+
+    <!-- Add to Calendar -->
+    <div class="calendar-section">
+      <button id="add-to-calendar" class="calendar-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+        </svg>
+        Zum Kalender hinzufügen
+      </button>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <button id="share-event" class="share-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        Veranstaltung teilen
+      </button>
+    </div>
+
+    <!-- Related Events -->
+    <div class="more-section">
+      <h2>Weitere Veranstaltungen</h2>
+      <a href="/mobile/events" class="more-link">Alle Veranstaltungen ansehen →</a>
+    </div>
+  </article>
+</MobileLayout>
+
+<style>
+  .event-detail {
+    background: white;
+    min-height: 100vh;
+  }
+
+  /* Hero Image */
+  .event-hero {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: #f0f0f0;
+  }
+
+  .event-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .status-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .status-badge.cancelled {
+    background: #ff4444;
+    color: white;
+  }
+
+  .status-badge.soldout {
+    background: #ff9800;
+    color: white;
+  }
+
+  /* Header */
+  .event-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .event-header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #666;
+  }
+
+  /* Quick Info */
+  .quick-info {
+    padding: 20px;
+    background: #f8f8f8;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 10px;
+  }
+
+  .info-icon {
+    font-size: 24px;
+  }
+
+  .info-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  /* Content */
+  .event-content {
+    padding: 20px;
+    line-height: 1.6;
+    color: #444;
+  }
+
+  .event-content :global(h2) {
+    font-size: 20px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .event-content :global(p) {
+    margin-bottom: 16px;
+  }
+
+  .event-content :global(ul) {
+    margin: 16px 0;
+    padding-left: 24px;
+  }
+
+  .event-content :global(li) {
+    margin-bottom: 8px;
+  }
+
+  /* Speaker Section */
+  .speaker-section {
+    padding: 20px;
+    background: #f8f8f8;
+  }
+
+  .speaker-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .speaker-card {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+  }
+
+  .speaker-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e0e0e0;
+  }
+
+  .speaker-info {
+    flex: 1;
+  }
+
+  .speaker-info h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .speaker-info p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Registration Section */
+  .registration-section {
+    padding: 20px;
+    background: #e8f5e9;
+  }
+
+  .registration-section h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .registration-section p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+
+  .registration-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .register-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .register-btn.phone {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .register-btn.email {
+    background: white;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+  }
+
+  .register-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Calendar Section */
+  .calendar-section {
+    padding: 20px;
+  }
+
+  .calendar-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .calendar-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Share Section */
+  .share-section {
+    padding: 0 20px 20px;
+  }
+
+  .share-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .share-btn:active {
+    transform: scale(0.98);
+    background: #e0e0e0;
+  }
+
+  /* More Section */
+  .more-section {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+
+  .more-section h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .more-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+  }
+</style>
+
+<script define:vars={{ eventData: event.data }}>
+  // Add to calendar
+  document.getElementById('add-to-calendar')?.addEventListener('click', () => {
+    const startDate = new Date(eventData.date);
+    const [hours, minutes] = eventData.time.split(':');
+    startDate.setHours(parseInt(hours), parseInt(minutes));
+    
+    // Create calendar event (using Google Calendar as example)
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+    
+    const googleUrl = new URL('https://calendar.google.com/calendar/render');
+    googleUrl.searchParams.append('action', 'TEMPLATE');
+    googleUrl.searchParams.append('text', eventData.title);
+    googleUrl.searchParams.append('dates', `${formatDateForGoogle(startDate)}/${formatDateForGoogle(endDate)}`);
+    googleUrl.searchParams.append('location', `Museum Grünes Haus, ${eventData.location}`);
+    googleUrl.searchParams.append('details', eventData.description || '');
+    
+    window.open(googleUrl.toString(), '_blank');
+  });
+  
+  function formatDateForGoogle(date: Date): string {
+    return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+  }
+  
+  // Share event
+  document.getElementById('share-event')?.addEventListener('click', async () => {
+    const shareData = {
+      title: eventData.title,
+      text: `${eventData.title} - ${new Date(eventData.date).toLocaleDateString('de-DE')} um ${eventData.time} im Museum Grünes Haus`,
+      url: window.location.href
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        alert('Link kopiert!');
+      }
+    } catch (err) {
+      console.log('Share failed:', err);
+    }
+  });
+</script>

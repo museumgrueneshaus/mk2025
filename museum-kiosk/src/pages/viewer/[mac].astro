@@ -6,10 +6,12 @@ import SlideshowAuto from '../../layouts/templates/SlideshowAuto.astro';
 import ImageGallery from '../../layouts/templates/ImageGallery.astro';
 import PDFViewer from '../../layouts/templates/PDFViewer.astro';
 import KnowledgeBase from '../../layouts/templates/KnowledgeBase.astro';
+import KnowledgeBaseExtended from '../../layouts/templates/KnowledgeBaseExtended.astro';
 import VideoPlayer from '../../layouts/templates/VideoPlayer.astro';
 import ExternalURL from '../../layouts/templates/ExternalURL.astro';
 import MixedCarousel from '../../layouts/templates/MixedCarousel.astro';
 import IframeEmbed from '../../layouts/templates/IframeEmbed.astro';
+import EventCalendar from '../../layouts/templates/EventCalendar.astro';
 
 // Generate static pages for known kiosk IDs
 export async function getStaticPaths() {
@@ -20,8 +22,11 @@ export async function getStaticPaths() {
     paths.push({ params: { mac: id } });
   }
   
-  // Also include the default test MAC
+  // Also include the default test MACs
   paths.push({ params: { mac: 'aa-bb-cc-dd-ee-01' } });
+  paths.push({ params: { mac: 'aa-bb-cc-dd-ee-02' } });
+  paths.push({ params: { mac: 'aa-bb-cc-dd-ee-03' } });
+  paths.push({ params: { mac: 'aa-bb-cc-dd-ee-04' } });
   
   return paths;
 }
@@ -57,10 +62,12 @@ const layoutComponents = {
   'image-gallery': ImageGallery,
   'pdf-viewer': PDFViewer,
   'knowledge-base': KnowledgeBase,
+  'knowledge-base-extended': KnowledgeBaseExtended,
   'video-player': VideoPlayer,
   'external-url': ExternalURL,
   'mixed-carousel': MixedCarousel,
-  'iframe-embed': IframeEmbed
+  'iframe-embed': IframeEmbed,
+  'event-calendar': EventCalendar
 };
 
 const LayoutComponent = layoutComponents[config.layout] || SlideshowAuto;

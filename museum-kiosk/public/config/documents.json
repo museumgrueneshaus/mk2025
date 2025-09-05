@@ -1,0 +1,98 @@
+{
+  "documents": [
+    {
+      "id": "DOC001",
+      "title": "Die Entstehung der Mona Lisa",
+      "type": "research",
+      "category": "kunstgeschichte",
+      "author": "Dr. Martin Kemp",
+      "year": 2019,
+      "language": "Deutsch",
+      "pages": 45,
+      "thumbnail": "/media/images/doc-mona-lisa-thumb.jpg",
+      "pdf_path": "/media/pdfs/mona-lisa-entstehung.pdf",
+      "abstract": "Eine umfassende Analyse der Entstehungsgeschichte von Leonardo da Vincis berühmtestem Werk. Die Studie untersucht technische Aspekte, historischen Kontext und die Identität der dargestellten Person.",
+      "related_exhibits": ["EXP001"],
+      "related_persons": ["PER001"],
+      "tags": ["forschung", "leonardo", "renaissance", "analyse"]
+    },
+    {
+      "id": "DOC002",
+      "title": "Restaurierungsbericht: Die Nachtwache",
+      "type": "restoration",
+      "category": "restaurierung",
+      "author": "Rijksmuseum Restaurierungsteam",
+      "year": 2021,
+      "language": "Deutsch",
+      "pages": 120,
+      "thumbnail": "/media/images/doc-nachtwache-thumb.jpg",
+      "pdf_path": "/media/pdfs/nachtwache-restaurierung.pdf",
+      "abstract": "Detaillierter Bericht über die umfangreiche Restaurierung von Rembrandts Meisterwerk. Dokumentiert moderne Techniken, Entdeckungen und den Prozess der Wiederherstellung.",
+      "related_exhibits": ["EXP002"],
+      "related_persons": ["PER002"],
+      "tags": ["restaurierung", "rembrandt", "technik", "konservierung"]
+    },
+    {
+      "id": "DOC003",
+      "title": "Expressionismus in Skandinavien",
+      "type": "catalog",
+      "category": "ausstellungskatalog",
+      "author": "Museum für Moderne Kunst",
+      "year": 2020,
+      "language": "Deutsch",
+      "pages": 200,
+      "thumbnail": "/media/images/doc-expressionism-thumb.jpg",
+      "pdf_path": "/media/pdfs/expressionismus-skandinavien.pdf",
+      "abstract": "Ausstellungskatalog zur großen Retrospektive des skandinavischen Expressionismus. Enthält Werke von Munch und seinen Zeitgenossen mit ausführlichen Analysen.",
+      "related_exhibits": ["EXP003"],
+      "related_persons": ["PER003"],
+      "tags": ["katalog", "expressionismus", "skandinavien", "modern"]
+    },
+    {
+      "id": "DOC004",
+      "title": "Technische Untersuchung barocker Maltechniken",
+      "type": "scientific",
+      "category": "wissenschaft",
+      "author": "Institut für Kunsttechnologie",
+      "year": 2022,
+      "language": "Deutsch",
+      "pages": 85,
+      "thumbnail": "/media/images/doc-baroque-tech-thumb.jpg",
+      "pdf_path": "/media/pdfs/barock-maltechnik.pdf",
+      "abstract": "Wissenschaftliche Untersuchung der Maltechniken des Barock mit besonderem Fokus auf Pigmentanalyse und Schichtaufbau. Neue Erkenntnisse durch moderne Analysemethoden.",
+      "related_exhibits": ["EXP002"],
+      "related_persons": ["PER002"],
+      "tags": ["wissenschaft", "technik", "barock", "analyse"]
+    },
+    {
+      "id": "DOC005",
+      "title": "Museumsführer: Meisterwerke der Sammlung",
+      "type": "guide",
+      "category": "publikation",
+      "author": "Museumspädagogik",
+      "year": 2023,
+      "language": "Deutsch",
+      "pages": 150,
+      "thumbnail": "/media/images/doc-guide-thumb.jpg",
+      "pdf_path": "/media/pdfs/museumsfuehrer.pdf",
+      "abstract": "Umfassender Führer durch die Museumssammlung mit detaillierten Beschreibungen der wichtigsten Werke, historischen Hintergründen und praktischen Informationen für Besucher.",
+      "related_exhibits": ["EXP001", "EXP002", "EXP003"],
+      "related_persons": ["PER001", "PER002", "PER003"],
+      "tags": ["führer", "sammlung", "bildung", "besucher"]
+    }
+  ],
+  "categories": [
+    { "id": "kunstgeschichte", "name": "Kunstgeschichte", "count": 1 },
+    { "id": "restaurierung", "name": "Restaurierung", "count": 1 },
+    { "id": "ausstellungskatalog", "name": "Ausstellungskataloge", "count": 1 },
+    { "id": "wissenschaft", "name": "Wissenschaftliche Studien", "count": 1 },
+    { "id": "publikation", "name": "Publikationen", "count": 1 }
+  ],
+  "types": [
+    { "id": "research", "name": "Forschungsarbeit" },
+    { "id": "restoration", "name": "Restaurierungsbericht" },
+    { "id": "catalog", "name": "Katalog" },
+    { "id": "scientific", "name": "Wissenschaftliche Studie" },
+    { "id": "guide", "name": "Museumsführer" }
+  ]
+}
