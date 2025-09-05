@@ -157,52 +157,60 @@ const {
     </script>
   </head>
   <body>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Zum Hauptinhalt springen</a>
+    <a href="#navigation" class="skip-link">Zur Navigation springen</a>
+    
     <div class="app-container">
       <!-- Status Bar (iOS Style) -->
-      <div class="status-bar">
+      <div class="status-bar" role="banner" aria-label="Status Bar">
         <div class="status-left">
-          <span id="status-time">10:15</span>
+          <span id="status-time" aria-live="polite" aria-label="Aktuelle Uhrzeit">10:15</span>
         </div>
         <div class="status-center">
-          <div class="notch"></div>
+          <div class="notch" aria-hidden="true"></div>
         </div>
-        <div class="status-right">
-          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <div class="status-right" aria-label="Gerätestatus">
+          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor" aria-label="WLAN Signal">
             <path d="M1 9l2-2v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7l2 2V2h-4v4.5l-2-2L12.5 0l-11 11v-2z"/>
           </svg>
-          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="18" height="12" viewBox="0 0 24 24" fill="currentColor" aria-label="Mobilfunk Signal">
             <path d="M2 17h20v2H2zm1.15-4.05L4 11.47l.85 1.48 1.3-.75-.85-1.48H7v-1.5H5.3l.85-1.48L4.85 7 4 8.47 3.15 7l-1.3.75.85 1.48H1v1.5h1.7l-.85 1.48 1.3.75zm6.7-.75l1.48.85 1.48-.85-.85-1.48H14v-1.5h-2.05l.85-1.48-1.48-.85L10 8.47 8.68 7l-1.48.85.85 1.48H6v1.5h2.05l-.85 1.48zm8 0l1.48.85 1.48-.85-.85-1.48H22v-1.5h-2.05l.85-1.48-1.48-.85L18 8.47 16.68 7l-1.48.85.85 1.48H14v1.5h2.05l-.85 1.48z"/>
           </svg>
-          <div class="battery">
+          <div class="battery" aria-label="Batterie 70%">
             <div class="battery-level"></div>
+            <span class="sr-only">Batterie bei 70%</span>
           </div>
         </div>
       </div>
 
       <!-- Main Content -->
-      <main class="app-main page-enter">
+      <main id="main-content" class="app-main page-enter" role="main" aria-label="Museum Hauptinhalt">
         <slot />
       </main>
 
       <!-- PWA Install Button -->
-      <div id="pwa-install-btn" class="install-prompt" onclick="installPWA()">
+      <div id="pwa-install-btn" class="install-prompt" onclick="installPWA()" role="button" tabindex="0" 
+           aria-label="Museum App installieren" aria-describedby="install-description">
         <div class="install-content">
-          <div class="install-icon">
+          <div class="install-icon" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
           </div>
           <div class="install-text">
             <div class="install-title">Museum App</div>
-            <div class="install-subtitle">Installieren</div>
+            <div class="install-subtitle" id="install-description">Installieren</div>
           </div>
         </div>
       </div>
 
       <!-- Tab Bar Navigation -->
-      <nav class="tab-bar glass">
-        <a href="/mobile" class="tab-item {activeTab === 'home' ? 'active' : ''}" data-tab="home">
-          <div class="tab-icon">
+      <nav id="navigation" class="tab-bar glass" role="navigation" aria-label="Hauptnavigation">
+        <a href="/mobile" class="tab-item {activeTab === 'home' ? 'active' : ''}" data-tab="home"
+           aria-label="Startseite{activeTab === 'home' ? ' (aktuelle Seite)' : ''}"
+           {activeTab === 'home' ? 'aria-current="page"' : ''}>
+          <div class="tab-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
@@ -210,8 +218,10 @@ const {
           <span class="tab-label">Start</span>
         </a>
         
-        <a href="/mobile/exhibits" class="tab-item {activeTab === 'exhibits' ? 'active' : ''}" data-tab="exhibits">
-          <div class="tab-icon">
+        <a href="/mobile/exhibits" class="tab-item {activeTab === 'exhibits' ? 'active' : ''}" data-tab="exhibits"
+           aria-label="Exponate{activeTab === 'exhibits' ? ' (aktuelle Seite)' : ''}"
+           {activeTab === 'exhibits' ? 'aria-current="page"' : ''}>
+          <div class="tab-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
@@ -219,9 +229,11 @@ const {
           <span class="tab-label">Exponate</span>
         </a>
         
-        <a href="/mobile/scan" class="tab-item scan-button" data-tab="scan">
+        <a href="/mobile/scan" class="tab-item scan-button" data-tab="scan"
+           aria-label="QR Code scannen{activeTab === 'scan' ? ' (aktuelle Seite)' : ''}"
+           {activeTab === 'scan' ? 'aria-current="page"' : ''}>
           <div class="scan-icon-wrapper">
-            <div class="scan-icon">
+            <div class="scan-icon" aria-hidden="true">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
                 <path d="M3 5v4h2V5h4V3H5c-1.1 0-2 .9-2 2zm2 10H3v4c0 1.1.9 2 2 2h4v-2H5v-4zm14 4h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5c0-1.1-.9-2-2-2z"/>
               </svg>
@@ -230,22 +242,27 @@ const {
           <span class="tab-label">Scan</span>
         </a>
         
-        <a href="/mobile/events" class="tab-item {activeTab === 'events' ? 'active' : ''}" data-tab="events">
-          <div class="tab-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <a href="/mobile/events" class="tab-item {activeTab === 'events' ? 'active' : ''}" data-tab="events"
+           aria-label="Events{activeTab === 'events' ? ' (aktuelle Seite)' : ''}"
+           {activeTab === 'events' ? 'aria-current="page"' : ''}>
+          <div class="tab-icon" aria-describedby="events-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
             </svg>
-            <div class="badge">3</div>
+            <div class="badge" id="events-badge" aria-label="3 neue Events">3</div>
           </div>
           <span class="tab-label">Events</span>
         </a>
         
-        <a href="/mobile/favorites" class="tab-item {activeTab === 'favorites' ? 'active' : ''}" data-tab="favorites">
+        <a href="/mobile/favorites" class="tab-item {activeTab === 'favorites' ? 'active' : ''}" data-tab="favorites"
+           aria-label="Favoriten{activeTab === 'favorites' ? ' (aktuelle Seite)' : ''}"
+           {activeTab === 'favorites' ? 'aria-current="page"' : ''}
+           aria-describedby="favorites-count">
           <div class="tab-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <div class="badge" id="favorites-count">0</div>
+            <div class="badge" id="favorites-count" aria-label="Favoriten Anzahl">0</div>
           </div>
           <span class="tab-label">Favoriten</span>
         </a>
@@ -316,10 +333,55 @@ const {
   }
 
   .notch {
-    width: 120px;
-    height: 30px;
-    background: black;
-    border-radius: 0 0 20px 20px;
+    display: none;
+  }
+
+  /* iPhone Dynamic Island / Modern Notch */
+  @media screen and (max-width: 430px) {
+    .notch {
+      display: block;
+      width: 126px;
+      height: 37px;
+      background: black;
+      border-radius: 19px;
+      position: relative;
+    }
+
+    /* iPhone 14 Pro Max Dynamic Island */
+    @media screen and (max-width: 430px) and (max-height: 932px) {
+      .notch {
+        width: 126px;
+        height: 37px;
+        border-radius: 19px;
+      }
+    }
+
+    /* iPhone 14 Pro Dynamic Island */
+    @media screen and (max-width: 393px) and (max-height: 852px) {
+      .notch {
+        width: 126px;
+        height: 37px;
+        border-radius: 19px;
+      }
+    }
+
+    /* iPhone 13/12 series notch */
+    @media screen and (max-width: 390px) and (max-height: 844px) {
+      .notch {
+        width: 164px;
+        height: 32px;
+        border-radius: 0 0 16px 16px;
+      }
+    }
+
+    /* iPhone 11 Pro / X series notch */
+    @media screen and (max-width: 375px) and (max-height: 812px) {
+      .notch {
+        width: 164px;
+        height: 30px;
+        border-radius: 0 0 16px 16px;
+      }
+    }
   }
 
   .battery {
@@ -926,9 +988,180 @@ const {
     }
   }
 
-  // Initialize gesture navigation
+  // Enhanced Keyboard Navigation & Accessibility
+  class AccessibilityManager {
+    constructor() {
+      this.isKeyboardNavigation = false;
+      this.init();
+    }
+
+    init() {
+      // Detect keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ' || e.key.startsWith('Arrow')) {
+          this.enableKeyboardNavigation();
+        }
+      });
+
+      document.addEventListener('mousedown', () => {
+        this.disableKeyboardNavigation();
+      });
+
+      // PWA Install button keyboard support
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            installPWA();
+          }
+        });
+      }
+
+      // Tab navigation keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey) {
+          switch(e.key) {
+            case '1':
+              e.preventDefault();
+              this.navigateToTab('/mobile');
+              break;
+            case '2':
+              e.preventDefault();
+              this.navigateToTab('/mobile/exhibits');
+              break;
+            case '3':
+              e.preventDefault();
+              this.navigateToTab('/mobile/scan');
+              break;
+            case '4':
+              e.preventDefault();
+              this.navigateToTab('/mobile/events');
+              break;
+            case '5':
+              e.preventDefault();
+              this.navigateToTab('/mobile/favorites');
+              break;
+          }
+        }
+
+        // Arrow key navigation in tab bar
+        if (document.activeElement?.closest('.tab-bar')) {
+          const tabItems = Array.from(document.querySelectorAll('.tab-item'));
+          const currentIndex = tabItems.indexOf(document.activeElement);
+          
+          switch(e.key) {
+            case 'ArrowLeft':
+              e.preventDefault();
+              const prevIndex = currentIndex > 0 ? currentIndex - 1 : tabItems.length - 1;
+              tabItems[prevIndex]?.focus();
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              const nextIndex = currentIndex < tabItems.length - 1 ? currentIndex + 1 : 0;
+              tabItems[nextIndex]?.focus();
+              break;
+            case 'Home':
+              e.preventDefault();
+              tabItems[0]?.focus();
+              break;
+            case 'End':
+              e.preventDefault();
+              tabItems[tabItems.length - 1]?.focus();
+              break;
+          }
+        }
+      });
+
+      // Announce page changes to screen readers
+      this.setupPageChangeAnnouncements();
+    }
+
+    enableKeyboardNavigation() {
+      if (!this.isKeyboardNavigation) {
+        document.body.classList.add('keyboard-nav-active');
+        this.isKeyboardNavigation = true;
+      }
+    }
+
+    disableKeyboardNavigation() {
+      if (this.isKeyboardNavigation) {
+        document.body.classList.remove('keyboard-nav-active');
+        this.isKeyboardNavigation = false;
+      }
+    }
+
+    navigateToTab(url) {
+      const targetTab = document.querySelector(`[href="${url}"]`);
+      if (targetTab) {
+        targetTab.click();
+        targetTab.focus();
+        
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+      }
+    }
+
+    setupPageChangeAnnouncements() {
+      // Create live region for announcements
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.className = 'sr-only';
+      liveRegion.id = 'page-announcements';
+      document.body.appendChild(liveRegion);
+
+      // Announce active tab changes
+      const observer = new MutationObserver(() => {
+        const activeTab = document.querySelector('.tab-item.active .tab-label');
+        if (activeTab) {
+          liveRegion.textContent = `Navigiert zu ${activeTab.textContent}`;
+        }
+      });
+
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true, 
+        attributes: true, 
+        attributeFilter: ['class'] 
+      });
+    }
+  }
+
+  // Initialize gesture navigation and accessibility
   document.addEventListener('DOMContentLoaded', () => {
     new GestureNavigation();
+    new AccessibilityManager();
+    
+    // Dynamic battery level updates
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        const updateBatteryUI = () => {
+          const batteryLevel = document.querySelector('.battery-level');
+          const batteryContainer = document.querySelector('.battery');
+          if (batteryLevel && batteryContainer) {
+            const percentage = Math.round(battery.level * 100);
+            batteryLevel.style.width = `${percentage}%`;
+            batteryContainer.setAttribute('aria-label', `Batterie ${percentage}%`);
+            
+            // Color coding for low battery
+            if (percentage < 20) {
+              batteryLevel.style.background = 'var(--color-error)';
+            } else if (percentage < 50) {
+              batteryLevel.style.background = 'var(--color-warning)';
+            } else {
+              batteryLevel.style.background = 'white';
+            }
+          }
+        };
+        
+        updateBatteryUI();
+        battery.addEventListener('levelchange', updateBatteryUI);
+        battery.addEventListener('chargingchange', updateBatteryUI);
+      });
+    }
   });
 
   // Page transitions with gesture support
