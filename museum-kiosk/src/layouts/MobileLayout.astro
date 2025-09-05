@@ -209,7 +209,7 @@ const {
       <nav id="navigation" class="tab-bar glass" role="navigation" aria-label="Hauptnavigation">
         <a href="/mobile" class="tab-item {activeTab === 'home' ? 'active' : ''}" data-tab="home"
            aria-label="Startseite{activeTab === 'home' ? ' (aktuelle Seite)' : ''}"
-           {activeTab === 'home' ? 'aria-current="page"' : ''}>
+           aria-current={activeTab === 'home' ? 'page' : undefined}>
           <div class="tab-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -220,7 +220,7 @@ const {
         
         <a href="/mobile/exhibits" class="tab-item {activeTab === 'exhibits' ? 'active' : ''}" data-tab="exhibits"
            aria-label="Exponate{activeTab === 'exhibits' ? ' (aktuelle Seite)' : ''}"
-           {activeTab === 'exhibits' ? 'aria-current="page"' : ''}>
+           aria-current={activeTab === 'exhibits' ? 'page' : undefined}>
           <div class="tab-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -231,7 +231,7 @@ const {
         
         <a href="/mobile/scan" class="tab-item scan-button" data-tab="scan"
            aria-label="QR Code scannen{activeTab === 'scan' ? ' (aktuelle Seite)' : ''}"
-           {activeTab === 'scan' ? 'aria-current="page"' : ''}>
+           aria-current={activeTab === 'scan' ? 'page' : undefined}>
           <div class="scan-icon-wrapper">
             <div class="scan-icon" aria-hidden="true">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -244,7 +244,7 @@ const {
         
         <a href="/mobile/events" class="tab-item {activeTab === 'events' ? 'active' : ''}" data-tab="events"
            aria-label="Events{activeTab === 'events' ? ' (aktuelle Seite)' : ''}"
-           {activeTab === 'events' ? 'aria-current="page"' : ''}>
+           aria-current={activeTab === 'events' ? 'page' : undefined}>
           <div class="tab-icon" aria-describedby="events-badge">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
@@ -256,7 +256,7 @@ const {
         
         <a href="/mobile/favorites" class="tab-item {activeTab === 'favorites' ? 'active' : ''}" data-tab="favorites"
            aria-label="Favoriten{activeTab === 'favorites' ? ' (aktuelle Seite)' : ''}"
-           {activeTab === 'favorites' ? 'aria-current="page"' : ''}
+           aria-current={activeTab === 'favorites' ? 'page' : undefined}
            aria-describedby="favorites-count">
           <div class="tab-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
