@@ -1,0 +1,31 @@
+{
+  "name": "museum-sanity-backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sanity Backend für Museum Kiosk System",
+  "main": "package.json",
+  "author": "Museum Digital",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "deploy-graphql": "sanity graphql deploy"
+  },
+  "keywords": [
+    "sanity",
+    "museum",
+    "cms"
+  ],
+  "dependencies": {
+    "@sanity/vision": "^3.30.0",
+    "sanity": "^3.30.0",
+    "styled-components": "^6.1.8"
+  },
+  "devDependencies": {
+    "@sanity/eslint-config-studio": "^3.0.1",
+    "@types/styled-components": "^5.1.26",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  }
+}

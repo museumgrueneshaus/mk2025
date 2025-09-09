@@ -1,202 +1,67 @@
-# Museum Kiosk System 2.0
+# Museum Kiosk – Sanity + Astro
 
-## Projektübersicht
+Dieses Repository enthält genau zwei Projekte, die zusammen den Kiosk bilden:
 
-Ein modulares, cloud-basiertes Informationssystem für interaktive Museum-Kiosks. Das System ermöglicht die zentrale Verwaltung von Inhalten und Konfigurationen über ein Headless CMS, während die Kiosk-Clients automatisch ihre spezifische Rolle basierend auf ihrer MAC-Adresse laden.
+- `museum-sanity-backend` – Sanity Studio (CMS) für Inhalte und Kiosk‑Konfiguration
+- `museum-astro-frontend` – Astro Frontend, deploybar auf Netlify
 
-## Systemarchitektur
+Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.
+
+## Lokale Entwicklung
+
+- Backend starten:
+  - `cd museum-sanity-backend`
+  - `npm install`
+  - `sanity login` (einmalig)
+  - `npm run dev` (öffnet `http://localhost:3333`)
+
+- Frontend starten:
+  - `cd museum-astro-frontend`
+  - `npm install`
+  - `npm run dev` (öffnet `http://localhost:4321`)
+
+### Umgebungsvariablen
+
+- Frontend (`museum-astro-frontend/.env`):
+  - `PUBLIC_SANITY_PROJECT_ID`
+  - `PUBLIC_SANITY_DATASET`
+  - Beispiel siehe `.env.example`
+
+- Backend (`museum-sanity-backend/.env`):
+  - `SANITY_STUDIO_PROJECT_ID`
+  - `SANITY_STUDIO_DATASET`
+  - Beispiel siehe `.env.example`
+
+## Verbindung Frontend ↔ Sanity
+
+- Project ID und Dataset im Frontend sind in `museum-astro-frontend/src/lib/sanity.js` bzw. `astro.config.mjs` hinterlegt.
+- Im Backend (`museum-sanity-backend/sanity.config.js`) die eigene `projectId` und `dataset` setzen.
+- CORS im Sanity Projekt für `http://localhost:4321` (dev) und die Netlify‑Domain (prod) freigeben.
+
+## Deployment
+
+- Sanity Studio:
+  - `cd museum-sanity-backend`
+  - `npm run deploy` → `https://<projekt>.sanity.studio`
+
+- Astro Frontend (Netlify):
+  - `cd museum-astro-frontend`
+  - Netlify ist über `netlify.toml` konfiguriert
+  - per Git‑Import deployen oder `netlify deploy --prod`
+  - In Netlify die Env Vars setzen: `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET`
+
+## Ordnerstruktur
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Strapi Backend                        │
-│                   (Render.com)                          │
-│  - Content-Types: Exponat, Kiosk, Konfiguration        │
-│  - Media: Cloudinary                                    │
-│  - API: REST mit Deep Population                        │
-└────────────────────┬────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│                  Frontend Web-App                        │
-│                    (Netlify)                            │
-│  - 5 Modi: Explorer, Slideshow, Website, Video, Buch   │
-│  - Vanilla JavaScript                                   │
-│  - MQTT-Integration für IoT                            │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────┴────────────┬──────────────┐
-        ▼                         ▼              ▼
-┌──────────────┐         ┌──────────────┐  ┌──────────────┐
-│ Raspberry Pi │         │ Raspberry Pi │  │   ESP32 +    │
-│   Kiosk 1    │         │   Kiosk 2    │  │ LED-Strip    │
-│ MAC: aa:bb:cc│         │ MAC: dd:ee:ff│  │    (MQTT)    │
-└──────────────┘         └──────────────┘  └──────────────┘
+/
+├── museum-astro-frontend/     # Astro App (Netlify)
+└── museum-sanity-backend/     # Sanity Studio (CMS)
 ```
 
-## Komponenten
+## Hinweise
 
-### 1. Backend (Strapi)
-- **Ordner:** `/kiosk-backend`
-- **Technologie:** Strapi v5, PostgreSQL, Cloudinary
-- **Deployment:** Render.com
-- **Features:**
-  - Content-Management für Exponate
-  - Kiosk-Konfiguration per MAC-Adresse
-  - Media-Verwaltung über Cloudinary
-  - Öffentliche Read-Only API
-
-### 2. Frontend (Web-App)
-- **Ordner:** `/frontend-kiosk`
-- **Technologie:** Vanilla JavaScript, HTML5, CSS3
-- **Deployment:** Netlify
-- **Modi:**
-  - **Explorer:** Interaktive Exponat-Liste mit Detail-Ansicht
-  - **Slideshow:** Automatische Bilderpräsentation
-  - **Website:** Externe Website im iFrame
-  - **VideoPlayer:** Video-Wiedergabe mit Kontrollen
-  - **Buch:** Blätterbare Seiten-Ansicht
-
-### 3. IoT-Controller (ESP32)
-- **Ordner:** `/esp32-led-controller`
-- **Technologie:** C++ (Arduino), FastLED, MQTT
-- **Features:**
-  - WS2812B LED-Strip Steuerung
-  - MQTT-Kommunikation über HiveMQ
-  - Segment-basierte LED-Kontrolle
-
-### 4. Client (Raspberry Pi)
-- **Ordner:** `/raspberry-pi-setup`
-- **Technologie:** Raspberry Pi OS, Chromium
-- **Features:**
-  - Auto-Start im Kiosk-Modus
-  - MAC-basierte Identifikation
-  - Readonly-Filesystem Option
-
-## Installation & Deployment
-
-### Backend Setup (Strapi)
-
-1. **Lokale Entwicklung:**
-```bash
-cd kiosk-backend
-npm install
-npm run develop
-```
-
-2. **Umgebungsvariablen** (`.env`):
-```env
-DATABASE_CLIENT=postgres
-DATABASE_URL=postgresql://user:pass@host:5432/db
-CLOUDINARY_NAME=your_cloud_name
-CLOUDINARY_KEY=your_api_key
-CLOUDINARY_SECRET=your_api_secret
-```
-
-3. **Deployment auf Render.com:**
-   - GitHub Repository erstellen
-   - Neuen Web Service auf Render anlegen
-   - PostgreSQL Datenbank hinzufügen
-   - Environment Variables konfigurieren
-   - Auto-Deploy aktivieren
-
-### Frontend Deployment (Netlify)
-
-1. **Konfiguration anpassen:**
-```javascript
-// app.js
-const API_BASE_URL = 'https://your-backend.onrender.com/api';
-const MQTT_BROKER_URL = 'wss://your-broker.hivemq.cloud:8884/mqtt';
-```
-
-2. **Deployment:**
-```bash
-cd frontend-kiosk
-# Push zu GitHub
-# Netlify mit GitHub verbinden
-# Auto-Deploy aktivieren
-```
-
-### ESP32 Setup
-
-1. **PlatformIO installieren**
-2. **Konfiguration anpassen** in `src/main.cpp`
-3. **Upload:**
-```bash
-cd esp32-led-controller
-pio run -t upload
-```
-
-### Raspberry Pi Setup
-
-1. **Raspberry Pi OS installieren**
-2. **Setup-Dateien kopieren:**
-```bash
-scp -r raspberry-pi-setup/* pi@kiosk.local:/home/pi/
-```
-3. **Setup ausführen:**
-```bash
-ssh pi@kiosk.local
-chmod +x setup.sh
-sudo ./setup.sh
-```
-4. **Frontend-URL anpassen** in `/home/pi/start_kiosk.sh`
-
-## Verwendung
-
-### Content-Verwaltung
-
-1. **Strapi Admin öffnen:** `https://your-backend.onrender.com/admin`
-2. **Exponat erstellen:**
-   - Titel, Jahresangabe, Beschreibung
-   - Medien hochladen (Bilder, Audio, Video)
-   - LED-Segment definieren (z.B. "10-19")
-
-3. **Kiosk konfigurieren:**
-   - Name und Standort
-   - MAC-Adresse eingeben
-   - Modus wählen
-   - Inhalte zuordnen
-
-4. **Globale Konfiguration:**
-   - LED-Farbe (Hex)
-   - LED-Helligkeit (0-255)
-   - Startseiten-Titel
-
-### Kiosk-Betrieb
-
-- Kiosks starten automatisch
-- Laden Konfiguration per MAC-Adresse
-- Zeigen zugewiesenen Modus an
-- Automatischer Neustart bei Fehler
-
-## API-Endpunkte
-
-### Öffentliche Endpoints (Read-Only)
-
-- `GET /api/exponate` - Alle Exponate
-- `GET /api/exponate/:id` - Einzelnes Exponat
-- `GET /api/kiosks?filters[macAdresse][$eq]=xx:xx:xx:xx:xx:xx` - Kiosk per MAC
-- `GET /api/konfiguration` - Globale Konfiguration
-
-## MQTT-Protokoll
-
-### Topic-Struktur
-- `museum/ledstrip/set` - LED-Steuerung
-- `museum/ledstrip/status` - Status-Updates
-- `museum/ledstrip/heartbeat` - Keep-Alive
-
-### Payload-Format
-```
-start-end;hexcolor;brightness
-Beispiel: 10-19;#FFD700;200
-```
-
-## Wartung & Monitoring
-
-### Strapi Backend
-- Admin-Panel für Content-Updates
-- API-Logs über Render Dashboard
-- Datenbank-Backups automatisch
+- Falls ein altes Projekt (z. B. Strapi, weitere Frontends) benötigt wird, bitte eine frühere Git‑Version prüfen.
+- Optional: Netlify‑Umgebungsvariablen im Frontend setzen (`PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET`).
 
 ### Frontend
 - Netlify Deploy-Logs
