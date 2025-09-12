@@ -1,11 +1,13 @@
 # Museum Kiosk – Sanity + Astro
 
-Dieses Repository enthält genau zwei Projekte, die zusammen den Kiosk bilden:
+Dieses Repository enthält das Backend für den Museum Kiosk:
 
 - `museum-sanity-backend` – Sanity Studio (CMS) für Inhalte und Kiosk‑Konfiguration
-- `museum-astro-frontend` – Astro Frontend, deploybar auf Netlify
 
-Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.deploy
+**Wichtig:** Das Frontend liegt in einem separaten Repository:
+- [museum-astro-frontend](https://github.com/museumgrueneshaus/museum-astro-frontend) – Astro Frontend, deploybar auf Netlify
+
+Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.
 
 ## Lokale Entwicklung
 
@@ -27,10 +29,13 @@ Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.de
   - `PUBLIC_SANITY_DATASET`
   - Beispiel siehe `.env.example`
 
-- Backend (`museum-sanity-backend/.env`):
+- Backend (`museum-sanity-backend/.env`):die readme schreiben me schreibenreib
+iben 
+
   - `SANITY_STUDIO_PROJECT_ID`
   - `SANITY_STUDIO_DATASET`
-  - Beispiel siehe `.env.example`
+  - Beis
+  piel siehe `.env.example`
 
 ## Verbindung Frontend ↔ Sanity
 
@@ -45,7 +50,7 @@ Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.de
   - `npm run deploy` → `https://<projekt>.sanity.studio`
 
 - Astro Frontend (Netlify):
-  - `cd museum-astro-frontend`
+  - **Repository:** [museum-astro-frontend](https://github.com/museumgrueneshaus/museum-astro-frontend)
   - Netlify ist über `netlify.toml` konfiguriert
   - per Git‑Import deployen oder `netlify deploy --prod`
   - In Netlify die Env Vars setzen: `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET`
@@ -53,9 +58,14 @@ Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.de
 ## Ordnerstruktur
 
 ```
-/
-├── museum-astro-frontend/     # Astro App (Netlify)
+mk2025/                        # Backend Repository
 └── museum-sanity-backend/     # Sanity Studio (CMS)
+
+museum-astro-frontend/         # Frontend Repository (separat)
+├── src/                       # Astro App Source
+├── public/                    # Static Assets
+├── netlify.toml              # Netlify Configuration
+└── package.json              # Dependencies
 ```
 
 ## Hinweise
@@ -125,7 +135,8 @@ sudo systemctl restart kiosk.service
 - Payload-Format validieren
 
 ### Performance-Probleme
-- Bildgrößen optimieren (Cloudinary)
+- Bildgrößen optimieren (Cloudinary)basically should steer a adressable led band 
+
 - API-Caching aktivieren
 - CDN für Frontend nutzen
 
