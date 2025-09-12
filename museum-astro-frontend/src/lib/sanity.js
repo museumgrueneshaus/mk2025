@@ -58,9 +58,9 @@ export async function getExponate(options = {}) {
     untertitel,
     kurzbeschreibung,
     beschreibung,
-    hauptbild,
-    bilder,
-    "kategorie": kategorie->{titel, slug, icon, farbe},
+    hauptbild{..., asset->{_id, metadata{lqip, dimensions}}},
+    bilder[]{..., asset->{_id, metadata{lqip, dimensions}}},
+    "kategorie": kategorie->{_id, titel, slug, icon, farbe},
     datierung,
     herstellung,
     physisch,
@@ -69,6 +69,8 @@ export async function getExponate(options = {}) {
     ist_highlight,
     reihenfolge,
     qr_code,
+    hat_led_licht,
+    led_position,
     audio,
     video,
     dokumente
@@ -85,9 +87,9 @@ export async function getExponat(id) {
     untertitel,
     kurzbeschreibung,
     beschreibung,
-    hauptbild,
-    bilder,
-    "kategorie": kategorie->{titel, slug, icon, farbe},
+    hauptbild{..., asset->{_id, metadata{lqip, dimensions}}},
+    bilder[]{..., asset->{_id, metadata{lqip, dimensions}}},
+    "kategorie": kategorie->{_id, titel, slug, icon, farbe},
     datierung,
     herstellung,
     physisch,
@@ -96,6 +98,8 @@ export async function getExponat(id) {
     ist_highlight,
     reihenfolge,
     qr_code,
+    hat_led_licht,
+    led_position,
     audio,
     video,
     dokumente
@@ -114,6 +118,36 @@ export async function getExponatByQR(qrCode) {
   }`;
 
   return await client.fetch(query, { qrCode });
+}
+
+export async function getExponateByIds(ids = []) {
+  if (!ids || ids.length === 0) return [];
+  const cleaned = ids.map((x) => (typeof x === 'string' ? x : x?._ref || x?._id)).filter(Boolean);
+  if (cleaned.length === 0) return [];
+  const projection = `{
+    _id,
+    inventarnummer,
+    titel,
+    untertitel,
+    kurzbeschreibung,
+    beschreibung,
+    hauptbild{..., asset->{_id, metadata{lqip, dimensions}}},
+    bilder[]{..., asset->{_id, metadata{lqip, dimensions}}},
+    "kategorie": kategorie->{_id, titel, slug, icon, farbe},
+    datierung,
+    herstellung,
+    physisch,
+    organisation,
+    tags,
+    ist_highlight,
+    reihenfolge,
+    qr_code,
+    audio,
+    video,
+    dokumente
+  }`;
+  const query = `*[_type == "exponat" && _id in $ids] | order(reihenfolge asc, _createdAt desc) ${projection}`;
+  return await client.fetch(query, { ids: cleaned });
 }
 
 export async function getKategorien() {
@@ -144,6 +178,24 @@ export async function getKioskConfig(mac = 'default') {
   }`;
 
   return await client.fetch(query, { mac });
+}
+
+// Fetch kiosk config by flexible identifier (MAC, name, or _id)
+export async function getKioskConfigByIdentifier(identifier = 'default') {
+  const query = `*[_type == "kioskConfig" && (mac_adresse == $id || name == $id || _id == $id || name == "Default")] | order(mac_adresse desc) [0] {
+    _id,
+    name,
+    standort,
+    mac_adresse,
+    modus,
+    konfiguration,
+    design,
+    funktionen,
+    mqtt,
+    aktiv
+  }`;
+
+  return await client.fetch(query, { id: identifier });
 }
 
 export async function getMuseumInfo() {

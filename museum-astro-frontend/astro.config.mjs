@@ -5,8 +5,7 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   output: 'server',
   adapter: netlify({
-    // Choose edge: true to deploy to Edge Functions; keeping Node Functions for compatibility
-    edge: false,
+    edge: false
   }),
   vite: {}
 });

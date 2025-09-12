@@ -71,7 +71,50 @@ Im Sanity Dashboard:
    - `http://localhost:4321` (für lokale Entwicklung)
    - `https://deine-museum-app.netlify.app` (für Production)
 
-## API Token (optional)
+## Netlify Build Hook (Auto-Deploy)
+
+Damit das Frontend nach Veröffentlichungen automatisch deployt:
+
+1) Netlify: Site Settings → Build & deploy → Build hooks → Build Hook anlegen (URL z. B.):
+   - `https://api.netlify.com/build_hooks/68c029e04a4a99209a1825e8`
+
+2) Sanity Webhook: manage.sanity.io → Projekt → API → Webhooks → Add webhook
+   - URL: Netlify Build Hook URL
+   - Methode: POST, Include payload: aus
+   - Trigger: Create, Update, Delete
+   - Filter (GROQ) – nur relevante Typen, keine Drafts:
+     ```groq
+     _type in ["exponat","kategorie","kioskConfig","museumInfo"] && !(_id in path("drafts.**"))
+     ```
+
+CLI-Alternative:
+```bash
+sanity webhook create \
+  --dataset production \
+  --name "Netlify Build (prod)" \
+  --url "https://api.netlify.com/build_hooks/68c029e04a4a99209a1825e8" \
+  --httpMethod post \
+  --includeBody false \
+  --filter '_type in ["exponat","kategorie","kioskConfig","museumInfo"] && !(_id in path("drafts.**"))'
+```
+
+## Deploy des Studios
+
+```bash
+# Login (einmalig)
+npx sanity login
+
+# Deploy (Hostname gespeichert in sanity.cli.js)
+npm run deploy
+# Beispiel-URL: https://museumghbackend.sanity.studio/
+```
+
+## API Token
+
+**Aktueller Token (für Testdaten-Scripts):**
+```
+sk1VTIq7XVReoW6NVa6L7fIJnUSRYC53fByocEKF2EIXTGHe69jf52yHs7QJwGMbH5dIDz67wEosW4RCq6pjw9qDD3IqJy69N6O7VqgMT8xUcEroHy4P5ORRSvbHuhOsHoUgo70xLnueRKGgKPzsV1nMPpz7DZ1D6CpSfDUSxIapVuDWRNDU
+```
 
 Für private Daten:
 1. API → Tokens → Add API token

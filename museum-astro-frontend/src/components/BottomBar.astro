@@ -1,0 +1,83 @@
+---
+// Defines the main navigation for the kiosk interface.
+// It is designed for large touchscreens and is hidden on mobile devices.
+
+const { pathname } = Astro.url;
+
+// Helper to determine if a link is active. Supports nested paths.
+const isActive = (path) => pathname.startsWith(path);
+
+const navItems = [
+  { href: '/kiosk/1/explorer', label: 'Entdecken' },
+  { href: '/kiosk/1/slideshow', label: 'Präsentation' },
+  { href: '/kiosk/1/reader', label: 'Lesemodus' },
+];
+---
+
+<nav class="kiosk-nav" aria-label="Hauptnavigation">
+  {navItems.map(item => (
+    <a 
+      href={item.href} 
+      class:list={["nav-item", { active: isActive(item.href) }]}
+      aria-current={isActive(item.href) ? 'page' : false}
+    >
+      {item.label}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .kiosk-nav {
+    /* Hidden on mobile, visible on kiosk screens */
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--space-8, 64px); /* 64px touch target */
+    background-color: var(--bg-alt, #111);
+    border-top: 1px solid var(--border, #222);
+    z-index: 100;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    
+    font-size: var(--font-caption, 18px);
+    font-weight: 500;
+    color: var(--text-dim, #9ca3af);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    border-bottom: 4px solid transparent;
+    transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  }
+
+  .nav-item:hover, .nav-item:focus {
+    color: var(--primary, #fff);
+  }
+
+  .nav-item.active {
+    color: var(--primary, #fff);
+    border-bottom-color: var(--primary, #fff);
+    font-weight: 700;
+  }
+
+  /* Show on screens wider than 768px */
+  @media (min-width: 769px) {
+    .kiosk-nav {
+      display: grid;
+    }
+  }
+</style>

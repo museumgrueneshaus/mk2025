@@ -3,63 +3,21 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="404 - Seite nicht gefunden">
-  <div class="error-page">
-    <div class="error-content">
-      <h1>404</h1>
-      <h2>Seite nicht gefunden</h2>
-      <p>Die angeforderte Seite existiert nicht.</p>
+  <div class="error-page container">
+    <div class="error-card">
+      <div class="error-code">404</div>
+      <h2 class="error-title">Seite nicht gefunden</h2>
+      <p class="error-text">Die angeforderte Seite existiert nicht oder wurde verschoben.</p>
       <a href="/" class="home-button">Zur Startseite</a>
     </div>
   </div>
 </Layout>
 
 <style>
-  .error-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .error-content {
-    text-align: center;
-    color: white;
-    padding: 2rem;
-  }
-
-  .error-content h1 {
-    font-size: 6rem;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  .error-content h2 {
-    font-size: 2rem;
-    margin: 1rem 0;
-  }
-
-  .error-content p {
-    font-size: 1.25rem;
-    margin: 2rem 0;
-    opacity: 0.9;
-  }
-
-  .home-button {
-    display: inline-block;
-    padding: 1rem 2rem;
-    background: white;
-    color: #667eea;
-    text-decoration: none;
-    border-radius: 30px;
-    font-size: 1.125rem;
-    font-weight: 600;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .home-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  }
+  .error-page { min-height: 70vh; display: grid; place-items: center; padding: var(--space-12) 0; }
+  .error-card { text-align: center; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-3); padding: var(--space-10); box-shadow: none; max-width: 640px; width: 100%; }
+  .error-code { font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; letter-spacing: -1px; color: var(--primary); }
+  .error-title { margin-top: var(--space-4); font-size: clamp(1.25rem, 2.4vw, 1.75rem); }
+  .error-text { color: var(--text-dim); margin: var(--space-4) 0 var(--space-8); }
+  .home-button { display: inline-block; padding: 10px 16px; background: #fff; color: var(--primary); text-decoration: none; border-radius: 999px; border: 1px solid var(--border); font-weight: 600; box-shadow: none; }
 </style>

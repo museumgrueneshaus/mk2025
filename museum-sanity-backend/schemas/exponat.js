@@ -447,6 +447,56 @@ export default {
       },
       description: 'Automatisch generiert für QR-Codes'
     },
+    {
+      name: 'hat_led_licht',
+      title: 'Hat LED-Licht',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Hat dieses Exponat LED-Beleuchtung?'
+    },
+    {
+      name: 'led_position',
+      title: 'LED Position im Raum',
+      type: 'object',
+      description: 'Position des Exponats auf der LED-Strip (zeigt wo das Exponat im Raum hängt)',
+      hidden: ({parent}) => !parent?.hat_led_licht,
+      fields: [
+        {
+          name: 'strip_number',
+          title: 'LED Strip Nummer',
+          type: 'number',
+          options: {
+            list: [
+              {title: 'Strip 1 (ESP32-1)', value: 1},
+              {title: 'Strip 2 (ESP32-2)', value: 2},
+              {title: 'Strip 3 (ESP32-3)', value: 3}
+            ]
+          },
+          description: 'Welche LED-Strip (1, 2 oder 3)',
+          validation: Rule => Rule.required().min(1).max(3)
+        },
+        {
+          name: 'led_start',
+          title: 'LED Start Position',
+          type: 'number',
+          description: 'Erste LED-Nummer auf dieser Strip (z.B. 0 für erste LED)',
+          validation: Rule => Rule.min(0)
+        },
+        {
+          name: 'led_end',
+          title: 'LED End Position',
+          type: 'number',
+          description: 'Letzte LED-Nummer auf dieser Strip (z.B. 9 für LEDs 0-9)',
+          validation: Rule => Rule.min(0)
+        },
+        {
+          name: 'raum_position',
+          title: 'Raum Position',
+          type: 'string',
+          description: 'Beschreibung der Position im Raum (z.B. "Nordwand, Mitte", "Ostwand, oben")'
+        }
+      ]
+    },
 
     // === IMDAS IMPORT ===
     {

@@ -5,7 +5,7 @@ Dieses Repository enthält genau zwei Projekte, die zusammen den Kiosk bilden:
 - `museum-sanity-backend` – Sanity Studio (CMS) für Inhalte und Kiosk‑Konfiguration
 - `museum-astro-frontend` – Astro Frontend, deploybar auf Netlify
 
-Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.
+Alle anderen Ordner und Skripte wurden entfernt, um das Setup zu vereinfachen.deploy
 
 ## Lokale Entwicklung
 

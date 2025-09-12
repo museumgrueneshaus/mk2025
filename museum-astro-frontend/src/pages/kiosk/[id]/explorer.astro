@@ -1,0 +1,85 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ExponatCard from '../../../components/ExponatCard.astro';
+
+export async function getStaticPaths() {
+  return [];
+}
+import { getKioskConfigByIdentifier, getMuseumInfo, getKategorien, getExponate } from '../../../lib/sanity';
+
+const { id } = Astro.params;
+const kioskConfig = await getKioskConfigByIdentifier(id).catch(() => null);
+const museumInfo = await getMuseumInfo().catch(() => ({ name: 'Museum Digital' }));
+const kategorien = await getKategorien().catch(() => []);
+
+let exponate = [];
+try {
+  const explorerSettings = kioskConfig?.konfiguration?.explorer_settings;
+  exponate = await getExponate({
+    highlight: explorerSettings?.nur_highlights,
+    categories: explorerSettings?.kategorien,
+    limit: explorerSettings?.items_pro_seite || 24
+  });
+} catch { exponate = []; }
+
+const pageTitle = `${kioskConfig?.name || id} – Entdecken`;
+const theme = kioskConfig?.design?.theme || 'default';
+const idleMs = kioskConfig?.konfiguration?.idle_ms || 300000;
+---
+
+<Layout title={pageTitle} theme={theme} idleHome={`/kiosk/${id}`} idleMs={idleMs}>
+  <div class="explorer-app" data-kiosk={id}>
+    <main class="explorer-main">
+      <div class="toolbar">
+        <div class="filters chips-scroll">
+          <button class="chip active" data-filter="all">Alle</button>
+          <button class="chip" data-filter="highlights">Highlights</button>
+          {kategorien?.map(k => (<button class="chip" data-category={k._id}>{k.titel}</button>))}
+        </div>
+        <div class="search desktop-only">
+          <input id="search-input" class="search-input" type="search" placeholder="Suche Exponate…" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="exponate-grid">
+        {exponate.map(exponat => (<ExponatCard exponat={exponat} />))}
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .explorer-app { min-height: 100vh; background: #fff; }
+    .explorer-main { min-height: 100vh; padding: 12px clamp(12px, 2vw, 24px) 24px; display: grid; grid-template-rows: auto 1fr; }
+    .chips-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .chip { border: 0; background: transparent; color: var(--muted); padding: 0; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; }
+    .chip.active, .chip:hover { color: var(--text); border-bottom-color: currentColor; }
+    .search-input { width: 100%; border: 0; border-bottom: 1px solid var(--border); padding: 10px 2px; background: transparent; }
+    .exponate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: clamp(1.5rem, 2.5vw, 2.5rem); align-content: start; }
+    .toolbar { display:flex; align-items:center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  </style>
+
+  <script>
+    const chips = document.querySelectorAll('.chip');
+    const cards = Array.from(document.querySelectorAll('.exponat-card'));
+    const input = document.getElementById('search-input');
+    let activeCategory = 'all', onlyHighlights = false, term = '';
+    function applyFilters() {
+      const t = term.trim().toLowerCase();
+      for (const el of cards) {
+        const matchesTerm = !t || el.dataset.search?.includes(t);
+        const matchesCat = activeCategory === 'all' || el.dataset.category === activeCategory;
+        const matchesHL = !onlyHighlights || el.dataset.highlight === 'true';
+        el.style.display = (matchesTerm && matchesCat && matchesHL) ? '' : 'none';
+      }
+    }
+    chips.forEach((chip) => chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      onlyHighlights = chip.dataset.filter === 'highlights';
+      activeCategory = chip.dataset.category || (chip.dataset.filter ? 'all' : activeCategory);
+      if (chip.dataset.filter === 'all') { activeCategory = 'all'; onlyHighlights = false; }
+      applyFilters();
+    }));
+    input?.addEventListener('input', (e) => { term = e.target.value || ''; applyFilters(); });
+  </script>
+</Layout>

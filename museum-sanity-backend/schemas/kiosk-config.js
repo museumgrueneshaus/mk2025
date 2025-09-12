@@ -295,6 +295,125 @@ export default {
           type: 'boolean',
           initialValue: false,
           description: 'Anonyme Nutzungsdaten für Verbesserungen'
+        },
+        {
+          name: 'mqtt',
+          title: 'MQTT Konfiguration',
+          type: 'object',
+          fields: [
+            {
+              name: 'aktiviert',
+              title: 'MQTT aktiviert',
+              type: 'boolean',
+              initialValue: false,
+              description: 'MQTT-Funktionalität aktivieren'
+            },
+            {
+              name: 'broker_url',
+              title: 'MQTT Broker URL',
+              type: 'string',
+              description: 'z.B. mqtt://localhost:1883 oder wss://broker.example.com:8883',
+              hidden: ({parent}) => !parent?.aktiviert
+            },
+            {
+              name: 'username',
+              title: 'Benutzername',
+              type: 'string',
+              hidden: ({parent}) => !parent?.aktiviert
+            },
+            {
+              name: 'password',
+              title: 'Passwort',
+              type: 'string',
+              hidden: ({parent}) => !parent?.aktiviert
+            },
+            {
+              name: 'client_id',
+              title: 'Client ID',
+              type: 'string',
+              description: 'Eindeutige ID für diesen Kiosk',
+              hidden: ({parent}) => !parent?.aktiviert
+            },
+            {
+              name: 'topics',
+              title: 'MQTT Topics',
+              type: 'object',
+              hidden: ({parent}) => !parent?.aktiviert,
+              fields: [
+                {
+                  name: 'lightbulb_topic_base',
+                  title: 'Lightbulb Topic Base',
+                  type: 'string',
+                  description: 'Basis-Topic für LED-Strips (z.B. museum/led)',
+                  initialValue: 'museum/led'
+                },
+                {
+                  name: 'status_topic',
+                  title: 'Status Topic',
+                  type: 'string',
+                  description: 'Topic für Kiosk-Status (z.B. museum/kiosk/status)',
+                  initialValue: 'museum/kiosk/status'
+                },
+                {
+                  name: 'interaction_topic',
+                  title: 'Interaction Topic',
+                  type: 'string',
+                  description: 'Topic für Benutzerinteraktionen (z.B. museum/kiosk/interaction)',
+                  initialValue: 'museum/kiosk/interaction'
+                }
+              ]
+            },
+            {
+              name: 'led_strips',
+              title: 'LED Strip Konfiguration',
+              type: 'array',
+              hidden: ({parent}) => !parent?.aktiviert,
+              of: [{
+                type: 'object',
+                fields: [
+                  {
+                    name: 'strip_number',
+                    title: 'Strip Nummer',
+                    type: 'number',
+                    options: {
+                      list: [
+                        {title: 'Strip 1', value: 1},
+                        {title: 'Strip 2', value: 2},
+                        {title: 'Strip 3', value: 3}
+                      ]
+                    },
+                    validation: Rule => Rule.required().min(1).max(3)
+                  },
+                  {
+                    name: 'esp32_id',
+                    title: 'ESP32 ID',
+                    type: 'string',
+                    description: 'Eindeutige ID des ESP32 (z.B. esp32-strip1)',
+                    validation: Rule => Rule.required()
+                  },
+                  {
+                    name: 'total_leds',
+                    title: 'Anzahl LEDs',
+                    type: 'number',
+                    description: 'Gesamtanzahl LEDs auf dieser Strip',
+                    initialValue: 100,
+                    validation: Rule => Rule.required().min(1)
+                  },
+                  {
+                    name: 'raum_position',
+                    title: 'Position im Raum',
+                    type: 'string',
+                    description: 'Wo ist diese Strip im Raum (z.B. "Nordwand", "Ostwand", "Südwand")'
+                  }
+                ]
+              }],
+              initialValue: [
+                {strip_number: 1, esp32_id: 'esp32-strip1', total_leds: 100, raum_position: 'Nordwand'},
+                {strip_number: 2, esp32_id: 'esp32-strip2', total_leds: 100, raum_position: 'Ostwand'},
+                {strip_number: 3, esp32_id: 'esp32-strip3', total_leds: 100, raum_position: 'Südwand'}
+              ]
+            }
+          ]
         }
       ]
     },

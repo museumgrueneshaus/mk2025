@@ -1,0 +1,151 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ExponatCard from '../components/ExponatCard.astro';
+import BottomBar from '../components/BottomBar.astro';
+import { getExponate, getKategorien } from '../lib/sanity';
+
+// Fetch all exhibits and categories from the CMS
+const exponate = await getExponate({ limit: 100 }).catch(() => []);
+const kategorien = await getKategorien().catch(() => []);
+
+const pageTitle = "Entdecken";
+---
+
+<Layout title={pageTitle} idleHome="/" idleMs={300000}>
+  <main class="explorer-main">
+    <header class="explorer-header">
+      <h1 class="page-title">{pageTitle}</h1>
+      
+      <!-- Filter Chips will be placed here -->
+      <div class="filters">
+        <button class="chip active" data-filter="all">Alle</button>
+        <button class="chip" data-filter="highlights">Highlights</button>
+        {kategorien?.map(k => (
+          <button class="chip" data-category={k._id}>{k.titel}</button>
+        ))}
+      </div>
+    </header>
+
+    {exponate.length > 0 ? (
+      <div class="exponate-grid">
+        {exponate.map(exponat => (
+          <ExponatCard exponat={exponat} />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <h2>Keine Exponate gefunden</h2>
+        <p>Die Sammlung wird gerade aktualisiert. Bitte versuchen Sie es später erneut.</p>
+      </div>
+    )}
+  </main>
+
+  <BottomBar />
+
+  <script>
+    // Simple client-side filtering
+    const chips = document.querySelectorAll('.chip');
+    const cards = document.querySelectorAll('.exponat-card');
+
+    function filterExhibits(filter) {
+      cards.forEach(card => {
+        const cardElement = card.closest('.card-link');
+        let show = false;
+
+        if (filter.type === 'all') {
+          show = true;
+        } else if (filter.type === 'category') {
+          // This is a placeholder. We need the category on the card.
+          // For now, we just show all.
+          show = true; // Replace with actual logic
+        }
+
+        cardElement.style.display = show ? 'block' : 'none';
+      });
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        // Deactivate all chips
+        chips.forEach(c => c.classList.remove('active'));
+        // Activate clicked chip
+        chip.classList.add('active');
+
+        const filterType = chip.dataset.filter;
+        const categoryId = chip.dataset.category;
+
+        if (filterType) {
+          filterExhibits({ type: filterType });
+        } else if (categoryId) {
+          filterExhibits({ type: 'category', id: categoryId });
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .explorer-main {
+      padding: var(--space-4) var(--space-4) var(--space-8); /* Padding top, sides, bottom */
+    }
+
+    .explorer-header {
+      padding-bottom: var(--space-4);
+    }
+
+    .page-title {
+      font-size: var(--font-h1, 48px);
+      font-weight: 700;
+      margin-bottom: var(--space-4);
+      padding-left: var(--space-2);
+    }
+
+    .filters {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding: var(--space-2);
+      /* Hide scrollbar */
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .filters::-webkit-scrollbar { display: none; }
+
+    .chip {
+      appearance: none;
+      border: 1px solid var(--border);
+      background-color: transparent;
+      color: var(--text-dim);
+      padding: var(--space-2) var(--space-3);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .chip.active, .chip:hover {
+      background-color: var(--primary);
+      color: var(--bg);
+      border-color: var(--primary);
+    }
+
+    .exponate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-8) var(--space-4);
+    }
+    .empty-state h2 {
+      font-size: var(--font-h2);
+      margin-bottom: var(--space-2);
+    }
+    .empty-state p {
+      color: var(--text-dim);
+      font-size: var(--font-body);
+    }
+  </style>
+</Layout>
