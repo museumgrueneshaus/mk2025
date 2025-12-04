@@ -175,6 +175,185 @@ export default {
               validation: Rule => Rule.required()
             }
           ]
+        },
+        // Video-Loop Modus
+        {
+          name: 'video_settings',
+          title: 'Video-Loop Einstellungen',
+          type: 'object',
+          hidden: ({parent}) => parent?.modus !== 'video',
+          fields: [
+            {
+              name: 'playlist',
+              title: 'Video Playlist',
+              type: 'array',
+              of: [{
+                type: 'object',
+                fields: [
+                  {
+                    name: 'typ',
+                    title: 'Typ',
+                    type: 'string',
+                    options: {
+                      list: [
+                        {title: 'Video', value: 'video'},
+                        {title: 'Bild', value: 'image'}
+                      ]
+                    },
+                    initialValue: 'video'
+                  },
+                  {
+                    name: 'video',
+                    title: 'Video-Datei',
+                    type: 'file',
+                    options: {
+                      accept: 'video/mp4,video/webm,video/mov'
+                    },
+                    hidden: ({parent}) => parent?.typ !== 'video'
+                  },
+                  {
+                    name: 'video_url',
+                    title: 'Oder Video-URL',
+                    type: 'url',
+                    description: 'Alternative: YouTube, Vimeo, oder direkter Link',
+                    hidden: ({parent}) => parent?.typ !== 'video'
+                  },
+                  {
+                    name: 'bild',
+                    title: 'Bild-Datei',
+                    type: 'image',
+                    options: {
+                      hotspot: true
+                    },
+                    hidden: ({parent}) => parent?.typ !== 'image'
+                  },
+                  {
+                    name: 'dauer',
+                    title: 'Anzeigedauer (Sekunden)',
+                    type: 'number',
+                    description: 'Nur für Bilder - wie lange soll das Bild angezeigt werden?',
+                    initialValue: 10,
+                    hidden: ({parent}) => parent?.typ !== 'image'
+                  },
+                  {
+                    name: 'titel',
+                    title: 'Titel',
+                    type: 'string',
+                    description: 'Optional: Wird als Overlay angezeigt'
+                  },
+                  {
+                    name: 'beschreibung',
+                    title: 'Beschreibung',
+                    type: 'text',
+                    rows: 2,
+                    description: 'Optional: Wird als Overlay angezeigt'
+                  },
+                  {
+                    name: 'untertitel',
+                    title: 'Untertitel (VTT/SRT)',
+                    type: 'file',
+                    options: {
+                      accept: '.vtt,.srt'
+                    },
+                    description: 'WebVTT oder SRT Untertitel-Datei',
+                    hidden: ({parent}) => parent?.typ !== 'video'
+                  }
+                ],
+                preview: {
+                  select: {
+                    title: 'titel',
+                    typ: 'typ',
+                    media: 'bild'
+                  },
+                  prepare(selection) {
+                    const {title, typ, media} = selection;
+                    return {
+                      title: title || 'Unbenannt',
+                      subtitle: typ === 'video' ? '🎬 Video' : '🖼️ Bild',
+                      media: media
+                    };
+                  }
+                }
+              }],
+              description: 'Reihenfolge durch Ziehen ändern'
+            },
+            {
+              name: 'loop',
+              title: 'Endlos-Schleife',
+              type: 'boolean',
+              initialValue: true,
+              description: 'Playlist automatisch wiederholen'
+            },
+            {
+              name: 'shuffle',
+              title: 'Zufällige Reihenfolge',
+              type: 'boolean',
+              initialValue: false
+            },
+            {
+              name: 'zeige_overlay',
+              title: 'Info-Overlay anzeigen',
+              type: 'boolean',
+              initialValue: true,
+              description: 'Titel/Beschreibung während Wiedergabe zeigen'
+            },
+            {
+              name: 'overlay_position',
+              title: 'Overlay-Position',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Unten links', value: 'bottom-left'},
+                  {title: 'Unten rechts', value: 'bottom-right'},
+                  {title: 'Oben links', value: 'top-left'},
+                  {title: 'Oben rechts', value: 'top-right'}
+                ]
+              },
+              initialValue: 'bottom-left',
+              hidden: ({parent}) => !parent?.zeige_overlay
+            },
+            {
+              name: 'uebergang',
+              title: 'Übergangseffekt',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Überblenden', value: 'fade'},
+                  {title: 'Schwarz blenden', value: 'black'},
+                  {title: 'Kein Effekt', value: 'none'}
+                ]
+              },
+              initialValue: 'fade'
+            },
+            {
+              name: 'audio',
+              title: 'Audio-Einstellungen',
+              type: 'object',
+              fields: [
+                {
+                  name: 'lautstaerke',
+                  title: 'Lautstärke',
+                  type: 'number',
+                  description: '0-100',
+                  initialValue: 70,
+                  validation: Rule => Rule.min(0).max(100)
+                },
+                {
+                  name: 'stumm',
+                  title: 'Stumm schalten',
+                  type: 'boolean',
+                  initialValue: false
+                }
+              ]
+            },
+            {
+              name: 'zeige_untertitel',
+              title: 'Untertitel anzeigen',
+              type: 'boolean',
+              initialValue: false,
+              description: 'VTT-Untertitel im Overlay anzeigen (falls vorhanden)'
+            }
+          ]
         }
       ]
     },
