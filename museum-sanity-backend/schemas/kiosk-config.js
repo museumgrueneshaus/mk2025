@@ -12,6 +12,13 @@ export default {
       description: 'z.B. "Eingang", "Raum 2", "Touchscreen 1"'
     },
     {
+      name: 'kioskId',
+      title: 'Kiosk ID',
+      type: 'string',
+      validation: Rule => Rule.required(),
+      description: 'Eindeutige ID für diesen Kiosk (z.B. RPI_01, RPI_02). Muss mit der URL übereinstimmen!'
+    },
+    {
       name: 'standort',
       title: 'Standort',
       type: 'string',
