@@ -340,7 +340,7 @@ cat > ~/.config/autostart/kiosk.desktop << 'DESKTOPEOF'
 [Desktop Entry]
 Type=Application
 Name=Museum Kiosk
-Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies --disable-translate --accept-lang=de-DE --app=KIOSK_URL_PLACEHOLDER
+Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies,Translate --accept-lang=de-DE --app=KIOSK_URL_PLACEHOLDER
 X-GNOME-Autostart-enabled=true
 DESKTOPEOF
 echo "✓ Desktop Autostart konfiguriert"
@@ -518,7 +518,7 @@ if [ -n "$KIOSK_URL" ] && [ "$KIOSK_URL" != "null" ]; then
 
     # Update Desktop Autostart
     if [ -f ~/.config/autostart/kiosk.desktop ]; then
-        sed -i "s|Exec=chromium.*|Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies --disable-translate --accept-lang=de-DE --app=${KIOSK_URL}|" ~/.config/autostart/kiosk.desktop
+        sed -i "s|Exec=chromium.*|Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies,Translate --accept-lang=de-DE --app=${KIOSK_URL}|" ~/.config/autostart/kiosk.desktop
         echo "✓ Kiosk URL aktualisiert"
     fi
 fi
