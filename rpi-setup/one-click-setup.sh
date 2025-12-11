@@ -415,7 +415,7 @@ cat > ~/pi-heartbeat.sh << 'HEARTBEAT_EOF'
 # Sanity Config
 SANITY_PROJECT_ID="832k5je1"
 SANITY_DATASET="production"
-SANITY_TOKEN="YOUR_SANITY_TOKEN_HERE"  # Muss ein Write-Token sein!
+SANITY_TOKEN="skaVkMqYzbkwHfAwuZA4pzh0rTN7rx6BhRa9zDNARi2upbn2t8HwJSfHuRIaNfODq2xss5kcc65A6QtanSPZMrFAJIN5y41TFjqxxT1opOIdiwvwRLMzOquqA8HPYnXsvdKGFMblGb4Ul8eEs1EjCky1DYzXMqC96oSzcoLyJ7bJG7cCZ2zm"  # Muss ein Write-Token sein!
 
 # Pi Info auslesen
 HOSTNAME=$(hostname)
@@ -475,7 +475,7 @@ cat > ~/pi-sync-config.sh << 'SYNC_EOF'
 # Sanity Config
 SANITY_PROJECT_ID="832k5je1"
 SANITY_DATASET="production"
-SANITY_TOKEN="YOUR_SANITY_TOKEN_HERE"  # Read-Token reicht
+SANITY_TOKEN="sk90yXpF4UxoYL90tyv4OHIXWitpSIUDkLp5v2STUyg01emutJaK16v4cg7ycRyhCYeBc0ijYbT04zklte0ecNrQRcSkZvmP7vhDqaSa3vZN2Yt6WAwYX4t3I1B5QaUXVGKAYxYShomGxT3RRJxvKPT9pbqEANfElpDkShq8qhA5Nf4oWUlp"  # Read-Token reicht
 
 # Pi Info
 HOSTNAME=$(hostname)

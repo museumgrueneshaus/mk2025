@@ -1,0 +1,14 @@
+[Unit]
+Description=labwc Wayland Compositor
+After=graphical.target
+
+[Service]
+Type=simple
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/bin/labwc
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,8 @@
+#!/bin/bash
+# labwc autostart - starts Chromium kiosk
+
+# Wait for compositor to be ready
+sleep 2
+
+# Start Chromium in kiosk mode
+chromium --kiosk --app=https://museumgh.netlify.app/kiosk/RPI_01/video &

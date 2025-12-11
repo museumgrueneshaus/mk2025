@@ -1,0 +1,7 @@
+Raspberry Pi Setup Info
+=======================
+Datum: Do 11 Dez 2025 13:35:59 CET
+Hostname: rpi01
+MAC: f6d351
+Kiosk-ID: RPI_01
+URL: https://museumgh.netlify.app/kiosk/RPI_01/video

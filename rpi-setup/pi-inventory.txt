@@ -1,0 +1,15 @@
+# Raspberry Pi Inventory
+# Format: hostname,kiosk_id,standort,notizen
+#
+# Beispiele:
+# rpi01,RPI_01,Museum Reutte,Beamer Erdgeschoss
+# rpi02,RPI_02,Museum Reutte,Monitor Obergeschoss
+# rpi03,RPI_03,Außenstelle,Tablet Eingang
+#
+# Zeilen mit # werden ignoriert
+# Leere Zeilen werden ignoriert
+
+# Museum Grünes Haus Reutte
+rpi01,RPI_01,Museum Reutte,Hauptausstellung
+
+# Weitere Pis hier eintragen:
