@@ -19,15 +19,9 @@ export default defineConfig({
         S.list()
           .title('Inhalt')
           .items([
-            // Kiosk Konfiguration
-            S.listItem()
-              .title('Kiosk Konfiguration')
-              .schemaType('kioskConfig')
-              .child(S.documentTypeList('kioskConfig').title('Kiosk Konfiguration')),
-
             // Kiosk Devices
             S.listItem()
-              .title('Kiosk Devices')
+              .title('📺 Kiosk Devices')
               .schemaType('kioskDevice')
               .child(S.documentTypeList('kioskDevice').title('Kiosk Devices')),
 

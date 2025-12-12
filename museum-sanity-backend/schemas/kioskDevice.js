@@ -100,8 +100,9 @@ export default {
     },
     {
       name: 'status',
-      title: 'Status',
+      title: '📊 Status (automatisch)',
       type: 'object',
+      description: 'Wird automatisch vom Pi-Heartbeat aktualisiert',
       fields: [
         {
           name: 'online',
