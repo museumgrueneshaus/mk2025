@@ -86,8 +86,9 @@ export default {
     // === MEDIEN ===
     {
       name: 'titelbild',
-      title: 'Titelbild',
+      title: 'Titelbild (Optional)',
       type: 'image',
+      description: 'Optional: Bei Video-Ausstellungen wird automatisch das erste Video-Thumbnail verwendet',
       options: {
         hotspot: true,
         metadata: ['blurhash', 'lqip', 'palette']
@@ -103,8 +104,7 @@ export default {
           type: 'string',
           title: 'Bildnachweis'
         }
-      ],
-      validation: Rule => Rule.required()
+      ]
     },
     {
       name: 'galerie',
@@ -668,15 +668,16 @@ export default {
       title: 'titel',
       subtitle: 'untertitel',
       media: 'titelbild',
+      firstVideoThumbnail: 'videos.0.thumbnail',
       status: 'veroeffentlichung.status',
       featured: 'ist_featured',
       typ: 'zeitraum.typ'
     },
-    prepare({title, subtitle, media, status, featured, typ}) {
+    prepare({title, subtitle, media, firstVideoThumbnail, status, featured, typ}) {
       return {
         title: `${featured ? '⭐ ' : ''}${title}`,
         subtitle: `${typ ? `[${typ}] ` : ''}${subtitle || ''} ${status ? `• ${status}` : ''}`,
-        media
+        media: media || firstVideoThumbnail // Fallback zu erstem Video-Thumbnail
       };
     }
   },
