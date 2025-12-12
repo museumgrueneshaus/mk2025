@@ -54,3 +54,9 @@ deploy/
 .cache/
 tmp/
 temp/
+
+# Backup and test files
+*_backup.*
+*_old.*
+test-*.astro
+video-test.*
