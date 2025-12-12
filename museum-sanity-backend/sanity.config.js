@@ -55,6 +55,12 @@ export default defineConfig({
               .schemaType('museumInfo')
               .child(S.documentTypeList('museumInfo').title('Museum Info')),
 
+            // Dokument-Ordner
+            S.listItem()
+              .title('📁 Dokument-Ordner')
+              .schemaType('dokumentKategorie')
+              .child(S.documentTypeList('dokumentKategorie').title('Dokument-Ordner')),
+
             // Divider
             S.divider(),
 
