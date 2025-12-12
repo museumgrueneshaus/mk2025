@@ -88,6 +88,21 @@ export default defineConfig({
                   )
               ),
 
+            // Media Galerie - Dokumente
+            S.listItem()
+              .title('📁 Media Galerie - Dokumente')
+              .icon(() => '📄')
+              .child(
+                S.documentList()
+                  .title('Dokument Dateien')
+                  .filter('_type == "sanity.fileAsset" && !(mimeType match "video/*") && (mimeType match "application/*" || mimeType match "text/*")')
+                  .child((documentId) =>
+                    S.document()
+                      .documentId(documentId)
+                      .schemaType('sanity.fileAsset')
+                  )
+              ),
+
             // Media Galerie - Alle Dateien
             S.listItem()
               .title('📁 Media Galerie - Alle Dateien')
