@@ -521,8 +521,8 @@ echo ""
 echo "Kiosk-ID: ${KIOSK_ID}"
 echo ""
 
-# Config von Sanity holen
-CONFIG=$(curl -s "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/query/${SANITY_DATASET}?query=*%5B_type%20%3D%3D%20%22kioskDevice%22%20%26%26%20kioskId%20%3D%3D%20%22${KIOSK_ID}%22%5D%5B0%5D" \
+# Config von Sanity holen (mit Ausstellung-Template)
+CONFIG=$(curl -s "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/query/${SANITY_DATASET}?query=*%5B_type%20%3D%3D%20%22kioskDevice%22%20%26%26%20kioskId%20%3D%3D%20%22${KIOSK_ID}%22%5D%5B0%5D%7B...,ausstellung-%3E%7BkioskTemplate%7D%7D" \
   -H "Authorization: Bearer ${SANITY_READ_TOKEN}")
 
 if [ -z "$CONFIG" ] || [ "$CONFIG" = "null" ]; then
@@ -536,17 +536,22 @@ echo ""
 
 # Parse Config mit jq
 KIOSK_URL=$(echo $CONFIG | jq -r '.result.kioskUrl // empty')
+TEMPLATE=$(echo $CONFIG | jq -r '.result.ausstellung.kioskTemplate.template // "video"')
 WLAN_NETWORKS=$(echo $CONFIG | jq -r '.result.wlanNetworks // empty')
 
-# Update Kiosk URL wenn vorhanden
-if [ -n "$KIOSK_URL" ] && [ "$KIOSK_URL" != "null" ]; then
-    echo "► Update Kiosk URL: $KIOSK_URL"
+# Generiere URL falls nicht in Sanity gesetzt
+if [ -z "$KIOSK_URL" ] || [ "$KIOSK_URL" = "null" ]; then
+    KIOSK_URL="https://museumgh.netlify.app/kiosk/${KIOSK_ID}/${TEMPLATE}"
+    echo "ℹ️  Generiere URL aus Template: $KIOSK_URL"
+fi
 
-    # Update Desktop Autostart
-    if [ -f ~/.config/autostart/kiosk.desktop ]; then
-        sed -i "s|Exec=chromium.*|Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies,Translate --accept-lang=de-DE --app=${KIOSK_URL}|" ~/.config/autostart/kiosk.desktop
-        echo "✓ Kiosk URL aktualisiert"
-    fi
+# Update Kiosk URL
+echo "► Update Kiosk URL: $KIOSK_URL"
+
+# Update Desktop Autostart
+if [ -f ~/.config/autostart/kiosk.desktop ]; then
+    sed -i "s|Exec=chromium.*|Exec=chromium --password-store=basic --disable-password-manager-reauthentication --kiosk --noerrdialogs --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies,Translate --accept-lang=de-DE --app=${KIOSK_URL}|" ~/.config/autostart/kiosk.desktop
+    echo "✓ Kiosk URL aktualisiert"
 fi
 
 # Update WLAN Networks wenn vorhanden
