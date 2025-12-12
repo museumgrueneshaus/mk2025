@@ -2,9 +2,16 @@
 # Registriert neues Device in Sanity
 # Wird vom Setup-Skript aufgerufen oder manuell ausgeführt
 
-SANITY_PROJECT_ID="832k5je1"
-SANITY_DATASET="production"
-SANITY_TOKEN="skaVkMqYzbkwHfAwuZA4pzh0rTN7rx6BhRa9zDNARi2upbn2t8HwJSfHuRIaNfODq2xss5kcc65A6QtanSPZMrFAJIN5y41TFjqxxT1opOIdiwvwRLMzOquqA8HPYnXsvdKGFMblGb4Ul8eEs1EjCky1DYzXMqC96oSzcoLyJ7bJG7cCZ2zm"  # Write-Token!
+# Load environment variables from .env file
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    source "$SCRIPT_DIR/.env"
+fi
+
+# Sanity Config (fallback to defaults if not in .env)
+SANITY_PROJECT_ID="${SANITY_PROJECT_ID:-832k5je1}"
+SANITY_DATASET="${SANITY_DATASET:-production}"
+# SANITY_WRITE_TOKEN must be set in .env
 
 # Parameter
 KIOSK_ID="$1"
@@ -32,7 +39,7 @@ echo ""
 RESPONSE=$(curl -X POST \
   "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${SANITY_DATASET}" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${SANITY_TOKEN}" \
+  -H "Authorization: Bearer ${SANITY_WRITE_TOKEN}" \
   -d '{
     "mutations": [
       {

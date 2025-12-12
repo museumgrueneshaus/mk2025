@@ -2,10 +2,15 @@
 # Pi Config Sync - zieht Konfiguration von Sanity beim Start
 # Wird beim Boot ausgeführt
 
-# Sanity Config
-SANITY_PROJECT_ID="832k5je1"
-SANITY_DATASET="production"
-SANITY_TOKEN="sk90yXpF4UxoYL90tyv4OHIXWitpSIUDkLp5v2STUyg01emutJaK16v4cg7ycRyhCYeBc0ijYbT04zklte0ecNrQRcSkZvmP7vhDqaSa3vZN2Yt6WAwYX4t3I1B5QaUXVGKAYxYShomGxT3RRJxvKPT9pbqEANfElpDkShq8qhA5Nf4oWUlp"  # Read-Token reicht
+# Load environment variables from .env file
+if [ -f "$HOME/.pi-kiosk.env" ]; then
+    source "$HOME/.pi-kiosk.env"
+fi
+
+# Sanity Config (fallback to defaults if not in .env)
+SANITY_PROJECT_ID="${SANITY_PROJECT_ID:-832k5je1}"
+SANITY_DATASET="${SANITY_DATASET:-production}"
+# SANITY_READ_TOKEN must be set in ~/.pi-kiosk.env
 
 # Pi Info
 HOSTNAME=$(hostname)
@@ -27,7 +32,7 @@ echo ""
 
 # Config von Sanity holen
 CONFIG=$(curl -s "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/query/${SANITY_DATASET}?query=*%5B_type%20%3D%3D%20%22kioskDevice%22%20%26%26%20kioskId%20%3D%3D%20%22${KIOSK_ID}%22%5D%5B0%5D" \
-  -H "Authorization: Bearer ${SANITY_TOKEN}")
+  -H "Authorization: Bearer ${SANITY_READ_TOKEN}")
 
 if [ -z "$CONFIG" ] || [ "$CONFIG" = "null" ]; then
     echo "⚠️  Keine Config in Sanity gefunden für ${KIOSK_ID}"

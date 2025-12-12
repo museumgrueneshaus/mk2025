@@ -4,6 +4,22 @@
 
 set -e
 
+# Load environment variables from .env file
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    source "$SCRIPT_DIR/.env"
+else
+    echo "⚠️  WARNING: .env file not found at $SCRIPT_DIR/.env"
+    echo "   Sanity integration will not work without API tokens!"
+    echo "   Copy .env.example to .env and add your tokens."
+    echo ""
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 # Configuration
 PI_USER="museumgh"
 PI_PASSWORD="gh2025#"
@@ -412,10 +428,15 @@ cat > ~/pi-heartbeat.sh << 'HEARTBEAT_EOF'
 # Pi Heartbeat - sendet Status regelmäßig an Sanity
 # Wird auf dem Pi als Cron-Job ausgeführt (alle 5 Min)
 
-# Sanity Config
-SANITY_PROJECT_ID="832k5je1"
-SANITY_DATASET="production"
-SANITY_TOKEN="skaVkMqYzbkwHfAwuZA4pzh0rTN7rx6BhRa9zDNARi2upbn2t8HwJSfHuRIaNfODq2xss5kcc65A6QtanSPZMrFAJIN5y41TFjqxxT1opOIdiwvwRLMzOquqA8HPYnXsvdKGFMblGb4Ul8eEs1EjCky1DYzXMqC96oSzcoLyJ7bJG7cCZ2zm"  # Muss ein Write-Token sein!
+# Load environment variables from .env file
+if [ -f "$HOME/.pi-kiosk.env" ]; then
+    source "$HOME/.pi-kiosk.env"
+fi
+
+# Sanity Config (fallback to defaults if not in .env)
+SANITY_PROJECT_ID="${SANITY_PROJECT_ID:-832k5je1}"
+SANITY_DATASET="${SANITY_DATASET:-production}"
+# SANITY_WRITE_TOKEN must be set in ~/.pi-kiosk.env
 
 # Pi Info auslesen
 HOSTNAME=$(hostname)
@@ -444,7 +465,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 curl -X POST \
   "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${SANITY_DATASET}" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${SANITY_TOKEN}" \
+  -H "Authorization: Bearer ${SANITY_WRITE_TOKEN}" \
   -d '{
     "mutations": [
       {
@@ -472,10 +493,15 @@ cat > ~/pi-sync-config.sh << 'SYNC_EOF'
 # Pi Config Sync - zieht Konfiguration von Sanity beim Start
 # Wird beim Boot ausgeführt
 
-# Sanity Config
-SANITY_PROJECT_ID="832k5je1"
-SANITY_DATASET="production"
-SANITY_TOKEN="sk90yXpF4UxoYL90tyv4OHIXWitpSIUDkLp5v2STUyg01emutJaK16v4cg7ycRyhCYeBc0ijYbT04zklte0ecNrQRcSkZvmP7vhDqaSa3vZN2Yt6WAwYX4t3I1B5QaUXVGKAYxYShomGxT3RRJxvKPT9pbqEANfElpDkShq8qhA5Nf4oWUlp"  # Read-Token reicht
+# Load environment variables from .env file
+if [ -f "$HOME/.pi-kiosk.env" ]; then
+    source "$HOME/.pi-kiosk.env"
+fi
+
+# Sanity Config (fallback to defaults if not in .env)
+SANITY_PROJECT_ID="${SANITY_PROJECT_ID:-832k5je1}"
+SANITY_DATASET="${SANITY_DATASET:-production}"
+# SANITY_READ_TOKEN must be set in ~/.pi-kiosk.env
 
 # Pi Info
 HOSTNAME=$(hostname)
@@ -497,7 +523,7 @@ echo ""
 
 # Config von Sanity holen
 CONFIG=$(curl -s "https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/query/${SANITY_DATASET}?query=*%5B_type%20%3D%3D%20%22kioskDevice%22%20%26%26%20kioskId%20%3D%3D%20%22${KIOSK_ID}%22%5D%5B0%5D" \
-  -H "Authorization: Bearer ${SANITY_TOKEN}")
+  -H "Authorization: Bearer ${SANITY_READ_TOKEN}")
 
 if [ -z "$CONFIG" ] || [ "$CONFIG" = "null" ]; then
     echo "⚠️  Keine Config in Sanity gefunden für ${KIOSK_ID}"
@@ -563,6 +589,19 @@ SYNC_EOF
 
 chmod +x ~/pi-heartbeat.sh ~/pi-sync-config.sh
 echo "✓ Sync-Skripte installiert"
+echo ""
+
+# Create .env file on Pi with tokens
+echo "► Erstelle .env Datei mit Sanity Tokens..."
+cat > ~/.pi-kiosk.env << ENV_EOF
+# Sanity API Tokens for Pi Kiosk
+SANITY_PROJECT_ID="${SANITY_PROJECT_ID:-832k5je1}"
+SANITY_DATASET="${SANITY_DATASET:-production}"
+SANITY_WRITE_TOKEN="${SANITY_WRITE_TOKEN}"
+SANITY_READ_TOKEN="${SANITY_READ_TOKEN}"
+ENV_EOF
+chmod 600 ~/.pi-kiosk.env
+echo "✓ .env Datei erstellt"
 echo ""
 
 # Setup cron jobs
