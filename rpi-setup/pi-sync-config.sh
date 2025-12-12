@@ -45,13 +45,12 @@ echo ""
 
 # Parse Config mit jq
 KIOSK_URL=$(echo $CONFIG | jq -r '.result.kioskUrl // empty')
-TEMPLATE=$(echo $CONFIG | jq -r '.result.ausstellung.kioskTemplate.template // "video"')
 WLAN_NETWORKS=$(echo $CONFIG | jq -r '.result.wlanNetworks // empty')
 
-# Generiere URL falls nicht in Sanity gesetzt
+# Generiere URL falls nicht in Sanity gesetzt (ohne /template - flexibel!)
 if [ -z "$KIOSK_URL" ] || [ "$KIOSK_URL" = "null" ]; then
-    KIOSK_URL="https://museumgh.netlify.app/kiosk/${KIOSK_ID}/${TEMPLATE}"
-    echo "ℹ️  Generiere URL aus Template: $KIOSK_URL"
+    KIOSK_URL="https://museumgh.netlify.app/kiosk/${KIOSK_ID}"
+    echo "ℹ️  Generiere flexible URL: $KIOSK_URL"
 fi
 
 # Update Kiosk URL

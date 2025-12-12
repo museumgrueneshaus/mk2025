@@ -137,7 +137,7 @@ else
     KIOSK_ID="RPI_${MAC_ADDRESS: -2}"
 fi
 
-KIOSK_URL="${2:-https://museumgh.netlify.app/kiosk/${KIOSK_ID}/video}"
+KIOSK_URL="${2:-https://museumgh.netlify.app/kiosk/${KIOSK_ID}}"
 
 echo "✓ Hostname: $HOSTNAME"
 echo "✓ MAC (letzte 6): $MAC_ADDRESS"
@@ -539,10 +539,10 @@ KIOSK_URL=$(echo $CONFIG | jq -r '.result.kioskUrl // empty')
 TEMPLATE=$(echo $CONFIG | jq -r '.result.ausstellung.kioskTemplate.template // "video"')
 WLAN_NETWORKS=$(echo $CONFIG | jq -r '.result.wlanNetworks // empty')
 
-# Generiere URL falls nicht in Sanity gesetzt
+# Generiere URL falls nicht in Sanity gesetzt (ohne /template - flexibel!)
 if [ -z "$KIOSK_URL" ] || [ "$KIOSK_URL" = "null" ]; then
-    KIOSK_URL="https://museumgh.netlify.app/kiosk/${KIOSK_ID}/${TEMPLATE}"
-    echo "ℹ️  Generiere URL aus Template: $KIOSK_URL"
+    KIOSK_URL="https://museumgh.netlify.app/kiosk/${KIOSK_ID}"
+    echo "ℹ️  Generiere flexible URL: $KIOSK_URL"
 fi
 
 # Update Kiosk URL
