@@ -11,8 +11,8 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-(cd museum-sanity-backend && npm run dev) & SANITY_PID=$!
-(cd museum-astro-frontend && npm run dev) & ASTRO_PID=$!
+(cd sanity-cms && npm run dev) & SANITY_PID=$!
+(cd frontend && npm run dev) & ASTRO_PID=$!
 
 wait
 
