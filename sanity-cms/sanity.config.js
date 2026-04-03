@@ -1,6 +1,6 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
-import {mediaPlugin} from 'sanity-plugin-media'
+import {media} from 'sanity-plugin-media'
 import {schemaTypes} from './schemas'
 import {HilfeSeite} from './components/HilfeSeite'
 
@@ -17,14 +17,13 @@ export default defineConfig({
   tools: [
     {
       name: 'hilfe',
-      title: '📚 Hilfe',
-      icon: () => '📚',
+      title: 'Hilfe',
       component: HilfeSeite,
     },
   ],
 
   plugins: [
-    mediaPlugin(),
+    media(),
     structureTool({
       structure: (S) =>
         S.list()
@@ -33,17 +32,17 @@ export default defineConfig({
 
             // ── AUSSTELLUNG & EXPONATE ──────────────────────────────────
             S.listItem()
-              .title('🖼️  Ausstellungen')
+              .title('Ausstellungen')
               .schemaType('ausstellung')
               .child(S.documentTypeList('ausstellung').title('Ausstellungen')),
 
             S.listItem()
-              .title('🗿  Exponate')
+              .title('Exponate')
               .schemaType('exponat')
               .child(S.documentTypeList('exponat').title('Exponate')),
 
             S.listItem()
-              .title('🏷️  Kategorien')
+              .title('Kategorien')
               .schemaType('kategorie')
               .child(S.documentTypeList('kategorie').title('Kategorien')),
 
@@ -51,8 +50,7 @@ export default defineConfig({
 
             // ── MEDIEN ─────────────────────────────────────────────────
             S.listItem()
-              .title('🎬  Videos')
-              .icon(() => '🎬')
+              .title('Videos')
               .child(
                 S.documentList()
                   .title('Videos')
@@ -65,8 +63,7 @@ export default defineConfig({
               ),
 
             S.listItem()
-              .title('🖼️  Bilder')
-              .icon(() => '🖼️')
+              .title('Bilder')
               .child(
                 S.documentList()
                   .title('Bilder')
@@ -79,8 +76,7 @@ export default defineConfig({
               ),
 
             S.listItem()
-              .title('📄  Dokumente & PDFs')
-              .icon(() => '📄')
+              .title('Dokumente & PDFs')
               .child(
                 S.documentList()
                   .title('Dokumente & PDFs')
@@ -96,17 +92,17 @@ export default defineConfig({
 
             // ── SYSTEM & EINSTELLUNGEN ─────────────────────────────────
             S.listItem()
-              .title('📺  Kiosk-Geräte')
+              .title('Kiosk-Geräte')
               .schemaType('kioskDevice')
               .child(S.documentTypeList('kioskDevice').title('Kiosk-Geräte')),
 
             S.listItem()
-              .title('ℹ️  Museum Info')
+              .title('Museum Info')
               .schemaType('museumInfo')
               .child(S.documentTypeList('museumInfo').title('Museum Info')),
 
             S.listItem()
-              .title('📁  Dokument-Vorlagen')
+              .title('Dokument-Vorlagen')
               .schemaType('dokumentKategorie')
               .child(S.documentTypeList('dokumentKategorie').title('Dokument-Vorlagen')),
 

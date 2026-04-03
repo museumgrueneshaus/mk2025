@@ -6,11 +6,11 @@ export default {
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
   groups: [
-    { name: 'inhalt',     title: '📋 Inhalt',                default: true },
-    { name: 'medien',     title: '🎨 Medien & Videos' },
-    { name: 'kiosk',      title: '📺 Kiosk-Darstellung' },
-    { name: 'exponate',   title: '🗿 Exponate & Kategorien' },
-    { name: 'verwaltung', title: '⚙️ Verwaltung' },
+    { name: 'inhalt',     title: 'Inhalt',                default: true },
+    { name: 'medien',     title: 'Medien & Videos' },
+    { name: 'kiosk',      title: 'Kiosk-Darstellung' },
+    { name: 'exponate',   title: 'Exponate & Kategorien' },
+    { name: 'verwaltung', title: 'Verwaltung' },
   ],
 
   fields: [
@@ -298,10 +298,10 @@ export default {
           type: 'string',
           options: {
             list: [
-              {title: '🎬 Video-Loop (Endlosschleife)', value: 'video'},
-              {title: '🖼️ Slideshow (Bilder-Galerie)', value: 'slideshow'},
-              {title: '📖 Reader (Scrollbare Inhalte)', value: 'reader'},
-              {title: '🗂️ Explorer (Interaktiver Katalog)', value: 'explorer'}
+              {title: 'Video-Loop (Endlosschleife)', value: 'video'},
+              {title: 'Slideshow (Bilder-Galerie)', value: 'slideshow'},
+              {title: 'Reader (Scrollbare Inhalte)', value: 'reader'},
+              {title: 'Explorer (Interaktiver Katalog)', value: 'explorer'}
             ]
           },
           initialValue: 'video',
@@ -702,11 +702,11 @@ export default {
           type: 'string',
           options: {
             list: [
-              {title: '✏️ Entwurf – noch nicht sichtbar', value: 'entwurf'},
-              {title: '🔄 In Vorbereitung – intern sichtbar', value: 'vorbereitung'},
+              {title: 'Entwurf – noch nicht sichtbar', value: 'entwurf'},
+              {title: 'In Vorbereitung – intern sichtbar', value: 'vorbereitung'},
               {title: '✅ Veröffentlicht – für Besucher sichtbar', value: 'veroeffentlicht'},
-              {title: '🏁 Beendet – Ausstellung abgeschlossen', value: 'beendet'},
-              {title: '📦 Archiviert – nicht mehr aktiv', value: 'archiviert'}
+              {title: 'Beendet – Ausstellung abgeschlossen', value: 'beendet'},
+              {title: 'Archiviert – nicht mehr aktiv', value: 'archiviert'}
             ]
           },
           initialValue: 'entwurf'
