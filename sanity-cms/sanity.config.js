@@ -1,5 +1,6 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
+import {mediaPlugin} from 'sanity-plugin-media'
 import {schemaTypes} from './schemas'
 import {HilfeSeite} from './components/HilfeSeite'
 
@@ -23,6 +24,7 @@ export default defineConfig({
   ],
 
   plugins: [
+    mediaPlugin(),
     structureTool({
       structure: (S) =>
         S.list()
