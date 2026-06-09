@@ -301,7 +301,10 @@ export default {
               {title: 'Video-Loop (Endlosschleife)', value: 'video'},
               {title: 'Slideshow (Bilder-Galerie)', value: 'slideshow'},
               {title: 'Reader (Scrollbare Inhalte)', value: 'reader'},
-              {title: 'Explorer (Interaktiver Katalog)', value: 'explorer'}
+              {title: 'Explorer (Interaktiver Katalog)', value: 'explorer'},
+              {title: 'Website (Externe Webseite)', value: 'website'},
+              {title: 'Signage (Eingangsbereich)', value: 'signage'},
+              {title: 'Malspiel (Interaktives Ausmalbild)', value: 'malspiel'}
             ]
           },
           initialValue: 'video',
@@ -454,6 +457,41 @@ export default {
               initialValue: 12,
               validation: Rule => Rule.min(1).max(50).error('Bitte einen Wert zwischen 1 und 50 eingeben.'),
               description: 'Anzahl der gleichzeitig angezeigten Exponate im Raster (1–50)'
+            }
+          ]
+        },
+
+        // Website Settings
+        {
+          name: 'websiteSettings',
+          title: 'Website Einstellungen',
+          type: 'object',
+          hidden: ({parent}) => parent?.template !== 'website',
+          fields: [
+            {
+              name: 'url',
+              title: 'Website-URL',
+              type: 'url',
+              validation: Rule => Rule.uri({ scheme: ['http', 'https'] }),
+              description: 'URL der Website die im Kiosk angezeigt wird (z.B. https://www.museum-reutte.at). Wird automatisch über den lokalen nginx-Proxy geladen.'
+            }
+          ]
+        },
+
+        // Malspiel Settings
+        {
+          name: 'malspielSettings',
+          title: 'Malspiel Einstellungen',
+          type: 'object',
+          hidden: ({parent}) => parent?.template !== 'malspiel',
+          fields: [
+            {
+              name: 'malspiel',
+              title: 'Malspiel',
+              type: 'reference',
+              to: [{type: 'malspiel'}],
+              validation: Rule => Rule.required().error('Bitte ein Malspiel auswählen.'),
+              description: 'Das Malspiel das auf diesem Kiosk angezeigt wird'
             }
           ]
         },

@@ -14,6 +14,10 @@ export default {
       default: true
     },
     {
+      name: 'english',
+      title: '🇬🇧 English'
+    },
+    {
       name: 'medien',
       title: 'Medien'
     },
@@ -104,6 +108,62 @@ export default {
         }
       ],
       description: 'Vollständige Beschreibung mit Formatierungen, Zwischentiteln und eingebetteten Bildern – erscheint auf der Detailseite'
+    },
+
+    // ── TAB: ENGLISH ──────────────────────────────────────────────────────
+    {
+      name: 'titel_en',
+      title: 'Title (English)',
+      type: 'string',
+      group: 'english',
+      description: 'English translation of the object name – shown on the mobile guide when visitors switch to English.'
+    },
+    {
+      name: 'untertitel_en',
+      title: 'Subtitle (English)',
+      type: 'string',
+      group: 'english',
+    },
+    {
+      name: 'kurzbeschreibung_en',
+      title: 'Short Description (English)',
+      type: 'text',
+      rows: 3,
+      group: 'english',
+      validation: Rule => Rule.max(500),
+      description: 'English short description for the kiosk display (max. 500 characters).'
+    },
+    {
+      name: 'beschreibung_en',
+      title: 'Description (English)',
+      type: 'array',
+      group: 'english',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Normal', value: 'normal'},
+            {title: 'H2', value: 'h2'},
+            {title: 'H3', value: 'h3'},
+            {title: 'Quote', value: 'blockquote'}
+          ],
+          marks: {
+            decorators: [
+              {title: 'Bold', value: 'strong'},
+              {title: 'Italic', value: 'em'},
+            ],
+            annotations: [
+              {
+                title: 'Link',
+                name: 'link',
+                type: 'object',
+                fields: [{ title: 'URL', name: 'href', type: 'url' }]
+              }
+            ]
+          }
+        }
+      ],
+      description: 'Full English description with formatting – shown on the detail page when visitors switch language.'
     },
 
     // ── TAB: MEDIEN ────────────────────────────────────────────────────────

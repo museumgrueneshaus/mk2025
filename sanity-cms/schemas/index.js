@@ -5,6 +5,8 @@ import museumInfo from './museum-info'
 import ausstellung from './ausstellung'
 import kioskDevice from './kioskDevice'
 import dokumentKategorie from './dokumentKategorie'
+import signageKonfiguration from './signageKonfiguration'
+import malspiel from './malspiel'
 
 export const schemaTypes = [
   exponat,
@@ -12,5 +14,7 @@ export const schemaTypes = [
   museumInfo,
   ausstellung,
   kioskDevice,
-  dokumentKategorie
+  dokumentKategorie,
+  signageKonfiguration,
+  malspiel
 ]

@@ -1,4 +1,5 @@
 // schemas/kioskDevice.js
+import { KioskPreviewLink } from '../components/KioskPreviewLink.jsx'
 
 export default {
   name: 'kioskDevice',
@@ -14,6 +15,15 @@ export default {
   fields: [
 
     // ── TAB: GERÄT ─────────────────────────────────────────────────────────
+    {
+      name: 'vorschau_link',
+      title: 'Vorschau',
+      type: 'string',
+      group: 'geraet',
+      readOnly: true,
+      components: { input: KioskPreviewLink },
+      description: ' '
+    },
     {
       name: 'kioskId',
       title: 'Kiosk-ID',
@@ -47,13 +57,45 @@ export default {
 
     // ── TAB: AUSSTELLUNG ───────────────────────────────────────────────────
     {
+      name: 'modus',
+      title: 'Anzeigemodus',
+      type: 'string',
+      group: 'ausstellung',
+      options: {
+        list: [
+          {title: 'Ausstellung', value: 'ausstellung'},
+          {title: 'Malspiel', value: 'malspiel'},
+        ],
+        layout: 'radio'
+      },
+      initialValue: 'ausstellung',
+      description: 'Was soll dieser Kiosk anzeigen?'
+    },
+    {
       name: 'ausstellung',
       title: 'Aktive Ausstellung',
       type: 'reference',
       group: 'ausstellung',
       to: [{type: 'ausstellung'}],
-      description: 'Die Ausstellung, die auf diesem Kiosk angezeigt wird. Änderungen sind spätestens nach 5 Minuten auf dem Gerät sichtbar.',
-      validation: Rule => Rule.required().error('Bitte eine Ausstellung auswählen.')
+      hidden: ({parent}) => parent?.modus === 'malspiel',
+      description: 'Die Ausstellung, die auf diesem Kiosk angezeigt wird.',
+      validation: Rule => Rule.custom((val, ctx) => {
+        if (ctx.parent?.modus !== 'malspiel' && !val) return 'Bitte eine Ausstellung auswählen.'
+        return true
+      })
+    },
+    {
+      name: 'malspiel',
+      title: 'Malspiel',
+      type: 'reference',
+      group: 'ausstellung',
+      to: [{type: 'malspiel'}],
+      hidden: ({parent}) => parent?.modus !== 'malspiel',
+      description: 'Das Malspiel das auf diesem Kiosk angezeigt wird.',
+      validation: Rule => Rule.custom((val, ctx) => {
+        if (ctx.parent?.modus === 'malspiel' && !val) return 'Bitte ein Malspiel auswählen.'
+        return true
+      })
     },
     {
       name: 'kioskUrl',

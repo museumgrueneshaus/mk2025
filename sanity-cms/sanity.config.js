@@ -90,6 +90,14 @@ export default defineConfig({
 
             S.divider(),
 
+            // ── MALSPIEL ───────────────────────────────────────────────
+            S.listItem()
+              .title('Malspiele')
+              .schemaType('malspiel')
+              .child(S.documentTypeList('malspiel').title('Malspiele')),
+
+            S.divider(),
+
             // ── SYSTEM & EINSTELLUNGEN ─────────────────────────────────
             S.listItem()
               .title('Kiosk-Geräte')
