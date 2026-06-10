@@ -48,6 +48,29 @@ export default {
       description: 'Standort des Geräts im Museum (z.B. "Eingang Haupthalle", "Raum 3 – Mittelalter"). Nur für interne Übersicht.'
     },
     {
+      name: 'befehl',
+      title: 'Befehl an das Gerät',
+      type: 'string',
+      group: 'geraet',
+      options: {
+        list: [
+          { title: '🔄 Gerät neustarten (kompletter Neustart)', value: 'neustarten' },
+          { title: '🌐 Browser neu starten', value: 'chromium-neustarten' },
+          { title: '⬇️ Software-Update sofort holen', value: 'update-erzwingen' }
+        ],
+        layout: 'dropdown'
+      },
+      description: 'Wird innerhalb von 5 Minuten vom Gerät ausgeführt und danach automatisch zurückgesetzt. Feld einfach leer lassen, wenn nichts zu tun ist.'
+    },
+    {
+      name: 'neu',
+      title: '🆕 Neu — noch nicht eingerichtet',
+      type: 'boolean',
+      group: 'geraet',
+      initialValue: false,
+      description: 'Dieses Gerät hat sich selbst registriert. Bitte Anzeigemodus + Ausstellung/Malspiel zuweisen und diesen Haken dann entfernen.'
+    },
+    {
       name: 'notes',
       title: 'Interne Notizen',
       type: 'text',
@@ -245,15 +268,17 @@ export default {
       location: 'location',
       online: 'status.online',
       lastSeen: 'status.lastSeen',
-      ausstellungTitel: 'ausstellung.titel'
+      ausstellungTitel: 'ausstellung.titel',
+      neu: 'neu'
     },
-    prepare({kioskId, hostname, location, online, lastSeen, ausstellungTitel}) {
+    prepare({kioskId, hostname, location, online, lastSeen, ausstellungTitel, neu}) {
       const status = online ? '🟢 Online' : '🔴 Offline';
       const lastSeenStr = lastSeen ? new Date(lastSeen).toLocaleString('de-DE') : 'Nie';
       const ausstellungInfo = ausstellungTitel ? ` | 🎨 ${ausstellungTitel}` : ' | ⚠️ Keine Ausstellung';
+      const neuPrefix = neu ? '🆕 ' : '';
 
       return {
-        title: `${kioskId} (${hostname})`,
+        title: `${neuPrefix}${kioskId} (${hostname})`,
         subtitle: `${location || 'Kein Standort'} – ${status}${ausstellungInfo}`,
         description: `Zuletzt gesehen: ${lastSeenStr}`
       }
