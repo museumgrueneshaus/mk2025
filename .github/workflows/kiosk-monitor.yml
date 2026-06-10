@@ -1,0 +1,65 @@
+name: Kiosk Offline-Monitor
+
+# Prüft alle 15 Minuten die Heartbeats aller Kiosk-Geräte in Sanity.
+# Gerät >15 Min nicht gesehen → GitHub-Issue (= E-Mail-Benachrichtigung).
+# Gerät wieder da → Issue wird automatisch geschlossen.
+# Anti-Spam: pro Offline-Ereignis genau ein Issue (Label: kiosk-offline).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check kiosk heartbeats
+        id: check
+        run: |
+          QUERY='*[_type=="kioskDevice" && defined(status.lastSeen) && neu != true && dateTime(status.lastSeen) < dateTime(now()) - 900]{kioskId, location, "lastSeen": status.lastSeen}'
+          ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$QUERY")
+          RESULT=$(curl -sf --max-time 30 \
+            "https://832k5je1.api.sanity.io/v2024-01-01/data/query/production?query=$ENCODED" \
+            | jq -c '.result // []')
+          echo "Offline devices: $RESULT"
+          COUNT=$(echo "$RESULT" | jq 'length')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          {
+            echo "devices<<EOF"
+            echo "$RESULT" | jq -r '.[] | "- **\(.kioskId)** (\(.location // "kein Standort")) — zuletzt gesehen: \(.lastSeen)"'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or close alert issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COUNT: ${{ steps.check.outputs.count }}
+          DEVICES: ${{ steps.check.outputs.devices }}
+        run: |
+          REPO="${{ github.repository }}"
+          OPEN_ISSUE=$(gh issue list --repo "$REPO" --label kiosk-offline --state open --json number --jq '.[0].number // empty')
+
+          if [ "$COUNT" -gt 0 ]; then
+            if [ -z "$OPEN_ISSUE" ]; then
+              gh label create kiosk-offline --repo "$REPO" --color D93F0B --description "Kiosk-Gerät offline" 2>/dev/null || true
+              gh issue create --repo "$REPO" \
+                --label kiosk-offline \
+                --title "🔴 Kiosk offline: $COUNT Gerät(e) ohne Heartbeat" \
+                --body "$(printf 'Folgende Geräte haben seit über 15 Minuten keinen Heartbeat gesendet:\n\n%s\n\nMögliche Ursachen: Strom, WLAN, SD-Karte.\nFernzugriff: Tailscale → vnc://<gerätename>:5900 oder SSH.\nDieses Issue schließt sich automatisch, sobald alle Geräte wieder online sind.' "$DEVICES")"
+              echo "Alert issue created."
+            else
+              echo "Alert issue #$OPEN_ISSUE already open — no spam."
+            fi
+          else
+            if [ -n "$OPEN_ISSUE" ]; then
+              gh issue close "$OPEN_ISSUE" --repo "$REPO" \
+                --comment "✅ Alle Geräte senden wieder Heartbeats — automatisch geschlossen."
+              echo "Alert issue closed."
+            else
+              echo "All devices online."
+            fi
+          fi
