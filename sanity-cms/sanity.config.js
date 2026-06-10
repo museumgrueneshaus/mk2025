@@ -3,6 +3,7 @@ import {structureTool} from 'sanity/structure'
 import {media} from 'sanity-plugin-media'
 import {schemaTypes} from './schemas'
 import {HilfeSeite} from './components/HilfeSeite'
+import {GeraeteUebersicht} from './components/GeraeteUebersicht'
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || '832k5je1'
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
@@ -99,6 +100,15 @@ export default defineConfig({
             S.divider(),
 
             // ── SYSTEM & EINSTELLUNGEN ─────────────────────────────────
+            S.listItem()
+              .title('🖥 Geräte-Übersicht')
+              .id('geraete-uebersicht')
+              .child(
+                S.component(GeraeteUebersicht)
+                  .id('geraete-uebersicht-view')
+                  .title('Geräte-Übersicht')
+              ),
+
             S.listItem()
               .title('Kiosk-Geräte')
               .schemaType('kioskDevice')

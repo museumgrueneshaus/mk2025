@@ -81,18 +81,20 @@ export default {
     // ── TAB: AUSSTELLUNG ───────────────────────────────────────────────────
     {
       name: 'modus',
-      title: 'Anzeigemodus',
+      title: 'Was zeigt dieses Gerät?',
       type: 'string',
       group: 'ausstellung',
       options: {
         list: [
-          {title: 'Ausstellung', value: 'ausstellung'},
-          {title: 'Malspiel', value: 'malspiel'},
+          {title: '🖼 Ausstellung (Darstellung kommt aus der Ausstellung)', value: 'ausstellung'},
+          {title: '🎨 Malspiel', value: 'malspiel'},
+          {title: '📺 Signage (Eingangsbereich / Übersicht)', value: 'signage'},
+          {title: '🌐 Website (externe Webseite)', value: 'website'},
         ],
         layout: 'radio'
       },
       initialValue: 'ausstellung',
-      description: 'Was soll dieser Kiosk anzeigen?'
+      description: 'Ein Gerät zeigt genau ein Ding. Je nach Auswahl erscheint darunter das passende Feld.'
     },
     {
       name: 'ausstellung',
@@ -100,10 +102,11 @@ export default {
       type: 'reference',
       group: 'ausstellung',
       to: [{type: 'ausstellung'}],
-      hidden: ({parent}) => parent?.modus === 'malspiel',
-      description: 'Die Ausstellung, die auf diesem Kiosk angezeigt wird.',
+      hidden: ({parent}) => parent?.modus !== 'ausstellung' && parent?.modus != null,
+      description: 'Die Ausstellung, die auf diesem Kiosk angezeigt wird. Wie sie dargestellt wird (Video, Slideshow, Explorer, Reader), legt die Ausstellung selbst fest (Tab „Kiosk-Darstellung").',
       validation: Rule => Rule.custom((val, ctx) => {
-        if (ctx.parent?.modus !== 'malspiel' && !val) return 'Bitte eine Ausstellung auswählen.'
+        const m = ctx.parent?.modus || 'ausstellung'
+        if (m === 'ausstellung' && !val) return 'Bitte eine Ausstellung auswählen.'
         return true
       })
     },
@@ -121,12 +124,16 @@ export default {
       })
     },
     {
-      name: 'kioskUrl',
-      title: 'Kiosk-URL (optional überschreiben)',
+      name: 'websiteUrl',
+      title: 'Website-Adresse',
       type: 'url',
       group: 'ausstellung',
-      description: 'Normalerweise leer lassen – wird automatisch anhand der Ausstellung und des Templates gesetzt. Nur überschreiben wenn eine individuelle URL benötigt wird.',
-      initialValue: undefined
+      hidden: ({parent}) => parent?.modus !== 'website',
+      description: 'Die Webseite, die dieses Gerät im Vollbild anzeigt (z.B. https://museum-gruenes-haus.at).',
+      validation: Rule => Rule.custom((val, ctx) => {
+        if (ctx.parent?.modus === 'website' && !val) return 'Bitte eine Website-Adresse eintragen.'
+        return true
+      })
     },
 
     // ── TAB: SYSTEM (IT) ───────────────────────────────────────────────────
@@ -268,18 +275,28 @@ export default {
       location: 'location',
       online: 'status.online',
       lastSeen: 'status.lastSeen',
+      modus: 'modus',
       ausstellungTitel: 'ausstellung.titel',
+      malspielTitel: 'malspiel.titel',
+      websiteUrl: 'websiteUrl',
       neu: 'neu'
     },
-    prepare({kioskId, hostname, location, online, lastSeen, ausstellungTitel, neu}) {
+    prepare({kioskId, hostname, location, online, lastSeen, modus, ausstellungTitel, malspielTitel, websiteUrl, neu}) {
       const status = online ? '🟢 Online' : '🔴 Offline';
       const lastSeenStr = lastSeen ? new Date(lastSeen).toLocaleString('de-DE') : 'Nie';
-      const ausstellungInfo = ausstellungTitel ? ` | 🎨 ${ausstellungTitel}` : ' | ⚠️ Keine Ausstellung';
+
+      let inhalt;
+      switch (modus) {
+        case 'malspiel': inhalt = malspielTitel ? `🎨 ${malspielTitel}` : '⚠️ Kein Malspiel'; break;
+        case 'signage':  inhalt = '📺 Signage'; break;
+        case 'website':  inhalt = websiteUrl ? `🌐 ${websiteUrl}` : '⚠️ Keine URL'; break;
+        default:         inhalt = ausstellungTitel ? `🖼 ${ausstellungTitel}` : '⚠️ Keine Ausstellung';
+      }
       const neuPrefix = neu ? '🆕 ' : '';
 
       return {
         title: `${neuPrefix}${kioskId} (${hostname})`,
-        subtitle: `${location || 'Kein Standort'} – ${status}${ausstellungInfo}`,
+        subtitle: `${location || 'Kein Standort'} – ${status} | ${inhalt}`,
         description: `Zuletzt gesehen: ${lastSeenStr}`
       }
     }

@@ -25,19 +25,13 @@ export default {
     {
       name: 'ausmalbild',
       title: 'Ausmalbild (Vorlage)',
-      type: 'image',
+      type: 'file',
       group: 'inhalt',
-      options: { hotspot: false },
+      options: {
+        accept: 'image/png,image/svg+xml,.png,.svg'
+      },
       validation: Rule => Rule.required().error('Ein Ausmalbild ist erforderlich.'),
-      description: 'Schwarzweiß-Vorlage als PNG oder SVG. Empfehlung: weißer Hintergrund, klare schwarze Linien, mind. 1200×1200 px.',
-      fields: [
-        {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternativtext',
-          description: 'Kurze Bildbeschreibung für Barrierefreiheit'
-        }
-      ]
+      description: 'Transparentes PNG oder SVG — schwarze Linien auf transparentem Hintergrund. Die Farben werden darunter gemalt, die Linien bleiben immer sichtbar. Mind. 1200×1200 px empfohlen.'
     },
     {
       name: 'bezug_exponat',
@@ -82,7 +76,7 @@ export default {
         }
       ],
       initialValue: [
-        { name: 'Schwarz',      hex: '#1a1a1a' },
+        { name: 'Dunkelgrau',   hex: '#3d3d3d' },
         { name: 'Dunkelbraun',  hex: '#5C3317' },
         { name: 'Rotbraun',     hex: '#A0522D' },
         { name: 'Rot',          hex: '#CC2200' },
@@ -139,9 +133,11 @@ export default {
         }
       ],
       initialValue: [
-        { bezeichnung: 'Fein',   groesse: 4,  standard: false },
-        { bezeichnung: 'Mittel', groesse: 14, standard: true  },
-        { bezeichnung: 'Breit',  groesse: 32, standard: false }
+        { bezeichnung: 'Fein', groesse: 4,  standard: false },
+        { bezeichnung: 'S',    groesse: 10, standard: false },
+        { bezeichnung: 'M',    groesse: 20, standard: true  },
+        { bezeichnung: 'L',    groesse: 42, standard: false },
+        { bezeichnung: 'XL',   groesse: 70, standard: false },
       ],
       description: '2–3 Stiftgrößen empfohlen. Radierer ist immer verfügbar und wird automatisch angezeigt.'
     },
@@ -190,20 +186,11 @@ export default {
   preview: {
     select: {
       title: 'titel',
-      media: 'ausmalbild',
       status: 'veroeffentlichung.status'
     },
-    prepare({ title, media, status }) {
-      const statusLabel = {
-        entwurf:    '✏️',
-        aktiv:      '✅',
-        archiviert: '📦'
-      }[status] || ''
-      return {
-        title: `${title || '(Ohne Titel)'}`,
-        subtitle: statusLabel,
-        media
-      }
+    prepare({ title, status }) {
+      const icon = { entwurf: '✏️', aktiv: '✅', archiviert: '📦' }[status] || '🎨'
+      return { title: title || '(Ohne Titel)', subtitle: icon }
     }
   },
 
