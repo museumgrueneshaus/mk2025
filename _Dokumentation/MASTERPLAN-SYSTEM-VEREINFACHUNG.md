@@ -129,6 +129,18 @@ Pi-Skripten (sync-content.sh, heartbeat.sh, chromium-kiosk.service — z.B. das 
 
 **Neuer-Pi-Workflow danach:** Flashen (10 Min) → einstecken → im Studio zuweisen. Fertig.
 
+### Fernwartung / Remote Desktop (gehört zu Schritt 3) — UMGESETZT 2026-06-10
+
+**Stack: Tailscale (VPN) + wayvnc (Wayland-VNC für labwc).**
+- Tailscale: jeder Pi tritt per Pre-Auth-Key automatisch dem privaten Netz bei
+  (`/etc/museum-kiosk/tailscale-authkey`). Erreichbar von überall, NAT egal,
+  kostenlos bis 100 Geräte. `--ssh` aktiviert: SSH läuft auch übers VPN.
+- wayvnc: bindet NUR an die Tailscale-IP (Port 5900) — im Museums-LAN
+  unsichtbar, Verschlüsselung macht das VPN. Ohne Tailscale: harmloser Leerlauf.
+- Zugriff vom Mac: Finder → Cmd+K → `vnc://<gerätename>:5900`
+- Einmalig nötig: Tailscale-Account anlegen, Pre-Auth-Key generieren
+  (reusable, tagged → läuft nicht ab), auf Geräte/ins Image legen.
+
 ### WLAN-Strategie (gehört zu Schritt 3)
 
 Drei Ebenen — niemand fasst je einen Pi an, um WLAN zu ändern:
@@ -149,15 +161,21 @@ Drei Ebenen — niemand fasst je einen Pi an, um WLAN zu ändern:
 
 ### Schritt 4 — Offline-Alarm + Sanity-Backup (2 kleine GitHub Actions)
 
-**Offline-Alarm** (`.github/workflows/kiosk-monitor.yml`):
-- Schedule alle 15 Min: GROQ `*[_type=="kioskDevice" && status.online==true &&
-  dateTime(status.lastSeen) < dateTime(now()) - 900]`
-- Bei Treffern: E-Mail an marcel (SMTP-Action mit Gmail App-Passwort als Secret)
-- Anti-Spam: nur 1 Mail pro Offline-Ereignis (Status-Flag im kioskDevice setzen)
+**Offline-Alarm** (mk2025: `.github/workflows/kiosk-monitor.yml`) — ✅ live validiert:
+- Schedule alle 15 Min: GROQ `*[_type=="kioskDevice" && defined(status.lastSeen) &&
+  neu != true && dateTime(status.lastSeen) < dateTime(now()) - 900]`
+- Bei Treffern: GitHub-Issue mit Label `kiosk-offline` (= E-Mail via Watch-Einstellung,
+  keine SMTP-Secrets nötig). Anti-Spam: max. 1 offenes Issue; schließt sich automatisch,
+  sobald alle Geräte wieder Heartbeats senden. Testlauf erzeugte Issue #1 korrekt.
 
-**Backup** (`.github/workflows/sanity-backup.yml`):
-- Wöchentlich: `sanity dataset export production` → Artifact (90 Tage) oder
-  Release-Asset. Inhalte + Asset-Referenzen gesichert.
+**Backup** (privates Repo `museumgrueneshaus/museum-backups`,
+`.github/workflows/sanity-backup.yml`) — ✅ live validiert (115 Dokumente, 72 KB):
+- Wöchentlich Mo 02:00 UTC: HTTP-Export-Endpoint per curl
+  (`/v2024-01-01/data/export/production`, Bearer-Token als Secret `SANITY_AUTH_TOKEN`)
+  → gzip → Artifact (90 Tage). Plausibilitätscheck: Export muss >10 Zeilen haben.
+- Hinweis: Sanity-CLI-Variante (`sanity dataset export --project --dataset`) funktioniert
+  NICHT in CI ohne Projektkontext — deshalb HTTP-Endpoint.
+- Restore: `gunzip` + `npx sanity dataset import backup.ndjson production --missing`
 
 ### Schritt 5 — Repo-Konsolidierung (größter Brocken, bewusst spät)
 
@@ -199,14 +217,32 @@ mit grün/rot + „zuletzt gesehen" + zugewiesenem Inhalt. Museum sieht selbst
 | # | Schritt | Status | Datum |
 |---|---|---|---|
 | 1 | Pi-Skripte ins ZIP + Selbst-Update | ✅ erledigt (Commit 41e4c4b, Release baut automatisch) | 2026-06-10 |
-| 2 | Befehlsfeld + Selbst-Registrierung | ⬜ offen | |
-| 3 | Pi-Härtung + Golden Image | ⬜ offen | |
-| 4 | Offline-Alarm + Backup | ⬜ offen | |
+| 2 | Befehlsfeld + Selbst-Registrierung | ✅ erledigt (Schema deployed, Pi-Skript Commit 4619cfb) | 2026-06-10 |
+| 3 | Pi-Härtung + Golden Image | 🔶 Software fertig (Commit 96f42fa: Tailscale+wayvnc Remote Desktop, Watchdog, Nacht-Reboot, journald→RAM, setup.sh non-interaktiv/idempotent) — Image-Erstellung offen | 2026-06-10 |
+| 4 | Offline-Alarm + Backup | ✅ erledigt (Monitor: mk2025 kiosk-monitor.yml, 15-Min-Takt, Issue=E-Mail; Backup: privates Repo museum-backups, wöchentlich Mo 02:00) | 2026-06-10 |
 | 5 | Repo-Konsolidierung (Monorepo, raus aus Drive) | ⬜ offen | |
-| 6 | Datenmodell + Geräte-Übersicht | ⬜ offen | |
+| 6 | Datenmodell + Geräte-Übersicht | ✅ erledigt (modus: ausstellung/malspiel/signage/website am Gerät, websiteUrl-Feld, kioskUrl entfernt; Geräte-Dashboard im Studio mit grün/rot + Auto-Refresh; Router + sync-content.sh angepasst, live gegen beide Geräte validiert — Altbestand mit modus=null fällt aufs Ausstellungs-Template zurück, keine Migration nötig. WLAN-Passwort-Entscheidung noch offen, siehe unten) | 2026-06-10 |
+
+**⚠ Offenes Sicherheitsthema (entdeckt 2026-06-10):**
+Das Sanity-Dataset ist öffentlich lesbar (nötig fürs Frontend) — damit sind auch
+die **WLAN-Passwörter** in `kioskDevice.wlanNetworks` über die Query-API abrufbar.
+Risiko: niedrig (Museums-WLAN), aber unsauber. Fix-Optionen:
+(a) Feld in zweites, **privates** Dataset `system` verschieben — Pi liest es mit
+seinem vorhandenen Token (/etc/museum-kiosk/sanity-token), Frontend braucht es
+nicht. Sauber, aber: zweites Dataset, Studio-Workspace-Umschaltung, mehr Teile.
+(b) WLAN nur noch über Imager (Flash-Zeit) + Ethernet-Fallback verteilen,
+Feld abschaffen. Einfachster Weg, verliert aber die Fern-Rotation
+(Passwortwechsel ohne Pi-Besuch). **Empfehlung: (b)** — seit Tailscale-SSH
+(Schritt 3) kann ein WLAN-Wechsel auch remote per nmcli eingespielt werden,
+solange das Gerät noch online ist; das Sanity-Feld ist damit redundant.
+Entscheidung Marcel ausstehend.
 
 **Offene Einmal-Aktionen:**
+- [x] ~~GitHub Watch auf mk2025~~ — per API aktiviert (2026-06-10), Offline-Issues kommen als E-Mail
 - [ ] Letztes SSH auf RPI_01: neues `sync-build.sh` manuell einspielen (Henne-Ei, Schritt 1)
+      — dabei gleich: Tailscale-Authkey ablegen + `sudo bash setup.sh` erneut laufen
+      lassen (idempotent → installiert Tailscale, wayvnc, Watchdog, Nacht-Reboot)
+- [ ] Tailscale-Account anlegen + Pre-Auth-Key generieren (reusable + tagged)
 - [ ] Drucker an der Kassa als CUPS-Standarddrucker auf RPI einrichten (Malspiel-Druck)
 
 ---
