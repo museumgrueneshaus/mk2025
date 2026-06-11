@@ -226,23 +226,23 @@ mit grün/rot + „zuletzt gesehen" + zugewiesenem Inhalt. Museum sieht selbst
 **⚠ Offenes Sicherheitsthema (entdeckt 2026-06-10):**
 Das Sanity-Dataset ist öffentlich lesbar (nötig fürs Frontend) — damit sind auch
 die **WLAN-Passwörter** in `kioskDevice.wlanNetworks` über die Query-API abrufbar.
-Risiko: niedrig (Museums-WLAN), aber unsauber. Fix-Optionen:
-(a) Feld in zweites, **privates** Dataset `system` verschieben — Pi liest es mit
-seinem vorhandenen Token (/etc/museum-kiosk/sanity-token), Frontend braucht es
-nicht. Sauber, aber: zweites Dataset, Studio-Workspace-Umschaltung, mehr Teile.
-(b) WLAN nur noch über Imager (Flash-Zeit) + Ethernet-Fallback verteilen,
-Feld abschaffen. Einfachster Weg, verliert aber die Fern-Rotation
-(Passwortwechsel ohne Pi-Besuch). **Empfehlung: (b)** — seit Tailscale-SSH
-(Schritt 3) kann ein WLAN-Wechsel auch remote per nmcli eingespielt werden,
-solange das Gerät noch online ist; das Sanity-Feld ist damit redundant.
-Entscheidung Marcel ausstehend.
+**✅ Gelöst 2026-06-11 mit Option (b):** Das `wlanNetworks`-Feld war leer
+(nie Passwörter öffentlich) und wurde aus Schema + sync-content.sh entfernt.
+Fixe WLANs (3 Netze) leben jetzt auf den Geräten in
+`/etc/museum-kiosk/wlans.conf` (Tab-getrennt: SSID, Passwort, Priorität) —
+setup.sh spielt sie idempotent per nmcli ein. Die Datei kommt per scp bzw.
+ins Golden Image, Master liegt lokal bei Marcel (`~/.museum-kiosk/wlans.conf`),
+nie im Repo. Passwortwechsel remote: via Tailscale-SSH neue wlans.conf
+einspielen + `sudo bash setup.sh`, solange das Gerät noch online ist.
 
 **Offene Einmal-Aktionen:**
 - [x] ~~GitHub Watch auf mk2025~~ — per API aktiviert (2026-06-10), Offline-Issues kommen als E-Mail
 - [ ] Letztes SSH auf RPI_01: neues `sync-build.sh` manuell einspielen (Henne-Ei, Schritt 1)
       — dabei gleich: Tailscale-Authkey ablegen + `sudo bash setup.sh` erneut laufen
       lassen (idempotent → installiert Tailscale, wayvnc, Watchdog, Nacht-Reboot)
-- [ ] Tailscale-Account anlegen + Pre-Auth-Key generieren (reusable + tagged)
+- [x] ~~Tailscale-Account + Pre-Auth-Key~~ — erledigt 2026-06-11, Key liegt in
+      `~/.museum-kiosk/tailscale-authkey` (reusable, tag:kiosk, gültig bis ~Sep 2026).
+      Komplette Besuchs-Anleitung: `~/.museum-kiosk/RPI01-BESUCH.md`
 - [ ] Drucker an der Kassa als CUPS-Standarddrucker auf RPI einrichten (Malspiel-Druck)
 
 ---
