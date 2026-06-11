@@ -144,59 +144,9 @@ export default {
       group: 'system',
       description: 'Letzte 6 Zeichen der MAC-Adresse des Geräts (zur eindeutigen Hardware-Identifikation)'
     },
-    {
-      name: 'wlanNetworks',
-      title: 'WLAN-Netzwerke',
-      type: 'array',
-      group: 'system',
-      hidden: ({currentUser}) => !currentUser?.roles?.some(r => r.name === 'administrator'),
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'ssid',
-              title: 'Netzwerkname (SSID)',
-              type: 'string',
-              validation: Rule => Rule.required().error('SSID ist erforderlich.')
-            },
-            {
-              name: 'password',
-              title: 'Passwort',
-              type: 'string',
-              validation: Rule => Rule.required().error('Passwort ist erforderlich.')
-            },
-            {
-              name: 'priority',
-              title: 'Priorität',
-              type: 'number',
-              description: 'Höhere Zahl = bevorzugt. Bei mehreren Netzwerken wird das mit der höchsten Priorität zuerst verwendet.',
-              initialValue: 10
-            },
-            {
-              name: 'description',
-              title: 'Beschreibung',
-              type: 'string',
-              description: 'Kurze Bezeichnung, z.B. "Museum-WLAN", "Backup-Hotspot"'
-            }
-          ],
-          preview: {
-            select: {
-              ssid: 'ssid',
-              priority: 'priority',
-              description: 'description'
-            },
-            prepare({ssid, priority, description}) {
-              return {
-                title: ssid,
-                subtitle: `Priorität: ${priority}${description ? ' – ' + description : ''}`
-              }
-            }
-          }
-        }
-      ],
-      description: 'WLAN-Zugangsdaten für dieses Gerät. Wird bei der nächsten Verbindung des Pi automatisch konfiguriert.'
-    },
+    // WLAN-Verwaltung absichtlich NICHT in Sanity: das Dataset ist öffentlich
+    // lesbar (Frontend), Passwörter wären abrufbar. Fixe Netze stehen auf den
+    // Geräten in /etc/museum-kiosk/wlans.conf (Golden Image / scp).
     {
       name: 'status',
       title: 'Gerätestatus (automatisch)',
